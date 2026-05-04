@@ -518,6 +518,8 @@ select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmln
 }
 .btn-copy {
   padding: 7px 12px;
+  width: 72px;
+  flex-shrink: 0;
   background: var(--primary);
   color: #fff;
   border: none;
@@ -527,6 +529,7 @@ select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmln
   cursor: pointer;
   transition: background .2s;
   white-space: nowrap;
+  text-align: center;
 }
 .btn-copy:hover { background: var(--primary-dark); }
 .btn-copy.copied { background: #22c55e; }
