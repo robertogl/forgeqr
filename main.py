@@ -34,6 +34,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 BASE_URL = os.getenv("BASE_URL", "http://localhost:8002")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./qr_codes.db")
 
 DRAWERS = {
     "square": SquareModuleDrawer,
@@ -313,17 +314,28 @@ async def admin_stats(request: Request, key: str = "", db: Session = Depends(get
 
     total = db.query(func.count(PageVisit.id)).scalar()
 
-    by_day = db.execute(text(
-        "SELECT DATE(visited_at) as d, COUNT(*) as c FROM page_visits GROUP BY d ORDER BY d DESC LIMIT 30"
-    )).fetchall()
+    is_pg = not DATABASE_URL.startswith("sqlite")
 
-    by_month = db.execute(text(
-        "SELECT strftime('%Y-%m', visited_at) as m, COUNT(*) as c FROM page_visits GROUP BY m ORDER BY m DESC LIMIT 24"
-    )).fetchall()
-
-    by_year = db.execute(text(
-        "SELECT strftime('%Y', visited_at) as y, COUNT(*) as c FROM page_visits GROUP BY y ORDER BY y DESC"
-    )).fetchall()
+    if is_pg:
+        by_day = db.execute(text(
+            "SELECT DATE(visited_at) as d, COUNT(*) as c FROM page_visits GROUP BY d ORDER BY d DESC LIMIT 30"
+        )).fetchall()
+        by_month = db.execute(text(
+            "SELECT to_char(visited_at, 'YYYY-MM') as m, COUNT(*) as c FROM page_visits GROUP BY m ORDER BY m DESC LIMIT 24"
+        )).fetchall()
+        by_year = db.execute(text(
+            "SELECT to_char(visited_at, 'YYYY') as y, COUNT(*) as c FROM page_visits GROUP BY y ORDER BY y DESC"
+        )).fetchall()
+    else:
+        by_day = db.execute(text(
+            "SELECT DATE(visited_at) as d, COUNT(*) as c FROM page_visits GROUP BY d ORDER BY d DESC LIMIT 30"
+        )).fetchall()
+        by_month = db.execute(text(
+            "SELECT strftime('%Y-%m', visited_at) as m, COUNT(*) as c FROM page_visits GROUP BY m ORDER BY m DESC LIMIT 24"
+        )).fetchall()
+        by_year = db.execute(text(
+            "SELECT strftime('%Y', visited_at) as y, COUNT(*) as c FROM page_visits GROUP BY y ORDER BY y DESC"
+        )).fetchall()
 
     qr_total = db.query(func.count(DynamicQR.short_code)).scalar()
     qr_scans = db.query(func.sum(DynamicQR.scan_count)).scalar() or 0
