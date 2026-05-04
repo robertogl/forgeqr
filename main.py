@@ -276,6 +276,11 @@ def build_qr_image(
 
 ADMIN_KEY = os.getenv("ADMIN_KEY", "")
 
+@app.get("/ads.txt", include_in_schema=False)
+def ads_txt():
+    return PlainTextResponse("google.com, pub-5198883341858973, DIRECT, f08c47fec0942fa0\n")
+
+
 @app.get("/robots.txt", include_in_schema=False)
 def robots_txt():
     content = "User-agent: *\nAllow: /\nDisallow: /admin\nSitemap: https://forgeqr.onrender.com/sitemap.xml\n"
