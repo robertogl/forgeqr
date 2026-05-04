@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage QR — Forge QR</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<header class="manage-hero">
+  <a href="/">← Back to Forge QR</a>
+  <h1>Manage Dynamic QR</h1>
+  <p>Short code: <strong>{{ entry.short_code }}</strong></p>
+</header>
+
+<main class="container">
+  <div class="manage-grid">
+
+    <!-- Left: edit + stats -->
+    <div>
+      <!-- Edit destination -->
+      <div class="form-card" style="margin-bottom:24px;">
+        <h2>Change Destination URL</h2>
+        <p style="font-size:.875rem;color:var(--text-muted);margin-bottom:16px;">
+          Update where this QR code points to. All existing printed QR codes will immediately redirect to the new URL.
+        </p>
+        <form id="update-form">
+          <div class="form-group">
+            <label for="new-url">New Destination URL</label>
+            <input type="url" id="new-url" value="{{ entry.destination_url }}" placeholder="https://example.com" required>
+          </div>
+          <button type="submit" class="btn-primary">Update URL</button>
+        </form>
+        <div class="alert" id="update-alert"></div>
+      </div>
+
+      <!-- Stats -->
+      <div class="form-card">
+        <h2>Scan Statistics</h2>
+        <div class="stat-row">
+          <span class="stat-label">Total scans</span>
+          <span class="stat-count">{{ entry.scan_count }}</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Created</span>
+          <span class="stat-value">{{ entry.created_at.strftime('%d %b %Y, %H:%M') if entry.created_at else '—' }}</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Last scanned</span>
+          <span class="stat-value">{{ entry.last_scan.strftime('%d %b %Y, %H:%M') if entry.last_scan else 'Never' }}</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Current destination</span>
+          <a href="{{ entry.destination_url }}" target="_blank" style="font-size:.875rem;color:var(--primary);word-break:break-all;">
+            {{ entry.destination_url }}
+          </a>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Redirect URL</span>
+          <span class="stat-value" style="font-size:.875rem;">{{ redirect_url }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: QR preview -->
+    <div class="preview-card" style="text-align:center;">
+      <h2>QR Code</h2>
+      <div style="margin:16px 0;" id="qr-container">
+        <canvas id="qr-canvas" style="border-radius:10px;max-width:100%;"></canvas>
+      </div>
+      <a class="btn-download visible" style="text-decoration:none;display:block;"
+         href="/api/qr/dynamic/{{ entry.short_code }}/download?token={{ token }}">
+        ⬇ Download PNG
+      </a>
+
+      <div style="margin-top:20px;">
+        <div class="copy-row">
+          <label>Link</label>
+          <input class="copy-input" value="{{ redirect_url }}" readonly>
+          <button class="btn-copy" data-value="{{ redirect_url }}">Copy</button>
+        </div>
+        <div class="copy-row" style="margin-top:8px;">
+          <label>Manage</label>
+          <input class="copy-input" value="{{ base_url }}/manage/{{ entry.short_code }}?token={{ token }}" readonly>
+          <button class="btn-copy" data-value="{{ base_url }}/manage/{{ entry.short_code }}?token={{ token }}">Copy</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <p>Forge QR &mdash; Free QR code generator</p>
+</footer>
+
+<script>
+const SHORT_CODE = "{{ entry.short_code }}";
+const TOKEN = "{{ token }}";
+const REDIRECT_URL = "{{ redirect_url }}";
+
+// Render QR using a simple canvas approach via API
+const img = new Image();
+img.onload = () => {
+  const canvas = document.getElementById('qr-canvas');
+  canvas.width = img.width;
+  canvas.height = img.height;
+  canvas.getContext('2d').drawImage(img, 0, 0);
+};
+// Fetch and render the current QR code
+fetch(`/api/qr/dynamic/${SHORT_CODE}/download?token=${TOKEN}`)
+  .then(r => r.blob())
+  .then(blob => { img.src = URL.createObjectURL(blob); });
+
+// Update form
+document.getElementById('update-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type="submit"]');
+  const alert = document.getElementById('update-alert');
+  const newUrl = document.getElementById('new-url').value.trim();
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Updating…';
+  alert.className = 'alert';
+
+  const fd = new FormData();
+  fd.append('destination_url', newUrl);
+  fd.append('token', TOKEN);
+
+  try {
+    const res = await fetch(`/api/qr/dynamic/${SHORT_CODE}/update`, { method: 'POST', body: fd });
+    const data = await res.json();
+    if (res.ok) {
+      alert.className = 'alert success';
+      alert.textContent = '✅ URL updated successfully!';
+    } else {
+      alert.className = 'alert error';
+      alert.textContent = data.detail || 'Update failed.';
+    }
+  } catch {
+    alert.className = 'alert error';
+    alert.textContent = 'Network error. Please try again.';
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Update URL';
+});
+
+// Copy buttons
+document.querySelectorAll('.btn-copy').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const value = btn.dataset.value;
+    navigator.clipboard.writeText(value).then(() => {
+      btn.textContent = '✓ Copied';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+    });
+  });
+});
+</script>
+</body>
+</html>

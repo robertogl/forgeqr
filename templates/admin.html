@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forge QR — Analytics</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 32px; }
+    .stat-card { background: var(--card); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 20px; text-align: center; box-shadow: var(--shadow); }
+    .stat-card .value { font-size: 2rem; font-weight: 700; color: var(--primary); }
+    .stat-card .label { font-size: .8rem; color: var(--text-muted); margin-top: 4px; }
+    .analytics-table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    .analytics-table th { text-align: left; padding: 10px 14px; background: var(--bg); color: var(--text-muted); font-weight: 600; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; border-bottom: 1.5px solid var(--border); }
+    .analytics-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+    .analytics-table tr:last-child td { border-bottom: none; }
+    .bar { height: 8px; background: var(--primary); border-radius: 4px; min-width: 2px; }
+    .section-title { font-size: 1rem; font-weight: 600; color: var(--text); margin: 28px 0 12px; }
+    .table-card { background: var(--card); border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); margin-bottom: 24px; }
+  </style>
+</head>
+<body>
+<header class="hero" style="padding: 32px 24px 28px;">
+  <h1 style="font-size:1.6rem;">Forge QR — Analytics</h1>
+  <p style="margin-top:4px;opacity:.85;">Site traffic &amp; QR stats</p>
+</header>
+
+<main class="container" style="max-width:860px; padding: 32px 24px;">
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="value">{{ total }}</div>
+      <div class="label">Total Visitors</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">{{ by_day[0].c if by_day else 0 }}</div>
+      <div class="label">Today</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">{{ by_month[0].c if by_month else 0 }}</div>
+      <div class="label">This Month</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">{{ by_year[0].c if by_year else 0 }}</div>
+      <div class="label">This Year</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">{{ qr_total }}</div>
+      <div class="label">Dynamic QRs Created</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">{{ qr_scans }}</div>
+      <div class="label">Total QR Scans</div>
+    </div>
+  </div>
+
+  {% set max_day = by_day | map(attribute='c') | max if by_day else 1 %}
+  <p class="section-title">Last 30 Days</p>
+  <div class="table-card">
+    <table class="analytics-table">
+      <thead><tr><th>Date</th><th>Visitors</th><th style="width:40%"></th></tr></thead>
+      <tbody>
+        {% for row in by_day %}
+        <tr>
+          <td>{{ row.d }}</td>
+          <td>{{ row.c }}</td>
+          <td><div class="bar" style="width:{{ [(row.c / max_day * 100)|int, 2]|max }}%"></div></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% set max_month = by_month | map(attribute='c') | max if by_month else 1 %}
+  <p class="section-title">By Month</p>
+  <div class="table-card">
+    <table class="analytics-table">
+      <thead><tr><th>Month</th><th>Visitors</th><th style="width:40%"></th></tr></thead>
+      <tbody>
+        {% for row in by_month %}
+        <tr>
+          <td>{{ row.m }}</td>
+          <td>{{ row.c }}</td>
+          <td><div class="bar" style="width:{{ [(row.c / max_month * 100)|int, 2]|max }}%"></div></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% set max_year = by_year | map(attribute='c') | max if by_year else 1 %}
+  <p class="section-title">By Year</p>
+  <div class="table-card">
+    <table class="analytics-table">
+      <thead><tr><th>Year</th><th>Visitors</th><th style="width:40%"></th></tr></thead>
+      <tbody>
+        {% for row in by_year %}
+        <tr>
+          <td>{{ row.y }}</td>
+          <td>{{ row.c }}</td>
+          <td><div class="bar" style="width:{{ [(row.c / max_year * 100)|int, 2]|max }}%"></div></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <p style="text-align:center; margin-top:24px;"><a href="/" style="color:var(--primary);">← Back to Forge QR</a></p>
+</main>
+</body>
+</html>
