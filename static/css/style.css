@@ -504,6 +504,7 @@ select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmln
 .copy-row label { font-size: .78rem; font-weight: 600; color: var(--text-muted); width: 56px; flex-shrink: 0; }
 .copy-input {
   flex: 1;
+  min-width: 0;
   font-size: .8rem;
   padding: 7px 10px;
   border: 1px solid var(--border);
