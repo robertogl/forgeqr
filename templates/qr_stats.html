@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scan Stats — Forge QR</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="/static/favicon.png">
+  <link rel="stylesheet" href="/static/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    .stats-hero { background: linear-gradient(135deg,#1e293b,#334155); color:#fff; padding:32px 24px; text-align:center; }
+    .stats-hero a { color:#94a3b8; text-decoration:none; font-size:.875rem; }
+    .stats-hero h1 { margin:12px 0 4px; font-size:1.6rem; }
+    .stats-hero p { margin:0; color:#cbd5e1; font-size:.9rem; }
+    .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; margin:28px 0; }
+    .stat-card { background:#fff; border-radius:12px; padding:20px 24px; box-shadow:0 1px 4px rgba(0,0,0,.08); text-align:center; }
+    .stat-card .num { font-size:2.2rem; font-weight:700; color:var(--primary); line-height:1; }
+    .stat-card .lbl { font-size:.8rem; color:var(--text-muted); margin-top:6px; }
+    .chart-card { background:#fff; border-radius:12px; padding:24px; box-shadow:0 1px 4px rgba(0,0,0,.08); margin-bottom:24px; }
+    .chart-card h3 { margin:0 0 16px; font-size:1rem; color:var(--text); }
+    .breakdown-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; margin-bottom:24px; }
+    .breakdown-card { background:#fff; border-radius:12px; padding:20px; box-shadow:0 1px 4px rgba(0,0,0,.08); }
+    .breakdown-card h3 { margin:0 0 12px; font-size:.95rem; color:var(--text); }
+    .bar-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; font-size:.85rem; }
+    .bar-row .bar-label { width:90px; flex-shrink:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text); }
+    .bar-row .bar-track { flex:1; background:#f1f5f9; border-radius:6px; height:10px; }
+    .bar-row .bar-fill { height:10px; border-radius:6px; background:var(--primary); transition:width .4s; }
+    .bar-row .bar-count { width:30px; text-align:right; color:var(--text-muted); flex-shrink:0; }
+    .recent-table { width:100%; border-collapse:collapse; font-size:.82rem; }
+    .recent-table th { text-align:left; padding:8px 10px; background:#f8fafc; color:var(--text-muted); font-weight:600; border-bottom:2px solid #e2e8f0; }
+    .recent-table td { padding:8px 10px; border-bottom:1px solid #f1f5f9; color:var(--text); }
+    .recent-table tr:last-child td { border-bottom:none; }
+    .badge { display:inline-block; padding:2px 8px; border-radius:20px; font-size:.75rem; font-weight:600; }
+    .badge-mobile { background:#dbeafe; color:#1d4ed8; }
+    .badge-desktop { background:#dcfce7; color:#15803d; }
+    .badge-tablet { background:#fef9c3; color:#a16207; }
+    .empty-state { text-align:center; padding:48px 24px; color:var(--text-muted); }
+    .empty-state svg { margin-bottom:12px; opacity:.4; }
+    .back-link { display:inline-block; margin-bottom:20px; color:var(--primary); text-decoration:none; font-size:.875rem; }
+    .back-link:hover { text-decoration:underline; }
+  </style>
+</head>
+<body>
+
+<div class="stats-hero">
+  <a href="/manage/{{ entry.short_code }}?token={{ token }}">← Back to Manage</a>
+  <h1>Scan Statistics</h1>
+  <p>QR code: <strong>{{ entry.short_code }}</strong> &nbsp;·&nbsp; Destination: <a href="{{ entry.destination_url }}" target="_blank" style="color:#93c5fd;">{{ entry.destination_url[:60] }}{% if entry.destination_url|length > 60 %}…{% endif %}</a></p>
+</div>
+
+<main class="container" style="max-width:960px;">
+
+  <!-- Summary cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="num">{{ entry.scan_count }}</div>
+      <div class="lbl">Total Scans</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">{{ countries | length }}</div>
+      <div class="lbl">Countries</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">{% if scans %}{{ scans[0].scanned_at.strftime('%d %b') }}{% else %}—{% endif %}</div>
+      <div class="lbl">Last Scan</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">{{ by_day | length }}</div>
+      <div class="lbl">Active Days</div>
+    </div>
+  </div>
+
+  {% if entry.scan_count == 0 %}
+  <div class="empty-state">
+    <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM20 14h1v1h-1zM17 17h1v1h-1zM20 17h1v4h-4v-1h3zM14 20h1v1h-1z"/></svg>
+    <p>No scans yet. Share your QR code to start collecting data.</p>
+  </div>
+  {% else %}
+
+  <!-- Scans over time chart -->
+  {% if by_day %}
+  <div class="chart-card">
+    <h3>Scans Over Time (last 30 days)</h3>
+    <canvas id="timeChart" height="80"></canvas>
+  </div>
+  {% endif %}
+
+  <!-- Breakdown cards -->
+  <div class="breakdown-grid">
+
+    <!-- Locations -->
+    <div class="breakdown-card">
+      <h3>📍 Top Countries</h3>
+      {% if countries %}
+        {% set max_c = countries[0][1] %}
+        {% for row in countries %}
+        <div class="bar-row">
+          <span class="bar-label" title="{{ row[0] }}">{{ row[0] }}</span>
+          <div class="bar-track"><div class="bar-fill" style="width:{{ (row[1] / max_c * 100)|int }}%"></div></div>
+          <span class="bar-count">{{ row[1] }}</span>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p style="color:var(--text-muted);font-size:.85rem;">No location data yet.</p>
+      {% endif %}
+    </div>
+
+    <!-- Device -->
+    <div class="breakdown-card">
+      <h3>📱 Device Type</h3>
+      {% if devices %}
+        {% set max_d = devices[0][1] %}
+        {% for row in devices %}
+        <div class="bar-row">
+          <span class="bar-label">{{ row[0] }}</span>
+          <div class="bar-track"><div class="bar-fill" style="width:{{ (row[1] / max_d * 100)|int }}%;background:#8b5cf6;"></div></div>
+          <span class="bar-count">{{ row[1] }}</span>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p style="color:var(--text-muted);font-size:.85rem;">No data yet.</p>
+      {% endif %}
+    </div>
+
+    <!-- OS -->
+    <div class="breakdown-card">
+      <h3>💻 Operating System</h3>
+      {% if oses %}
+        {% set max_o = oses[0][1] %}
+        {% for row in oses %}
+        <div class="bar-row">
+          <span class="bar-label">{{ row[0] }}</span>
+          <div class="bar-track"><div class="bar-fill" style="width:{{ (row[1] / max_o * 100)|int }}%;background:#f59e0b;"></div></div>
+          <span class="bar-count">{{ row[1] }}</span>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p style="color:var(--text-muted);font-size:.85rem;">No data yet.</p>
+      {% endif %}
+    </div>
+
+    <!-- Browser -->
+    <div class="breakdown-card">
+      <h3>🌐 Browser</h3>
+      {% if browsers %}
+        {% set max_b = browsers[0][1] %}
+        {% for row in browsers %}
+        <div class="bar-row">
+          <span class="bar-label">{{ row[0] }}</span>
+          <div class="bar-track"><div class="bar-fill" style="width:{{ (row[1] / max_b * 100)|int }}%;background:#10b981;"></div></div>
+          <span class="bar-count">{{ row[1] }}</span>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p style="color:var(--text-muted);font-size:.85rem;">No data yet.</p>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <!-- Recent scans table -->
+  <div class="chart-card">
+    <h3>Recent Scans</h3>
+    {% if scans %}
+    <div style="overflow-x:auto;">
+      <table class="recent-table">
+        <thead>
+          <tr>
+            <th>Date & Time (UTC)</th>
+            <th>Country</th>
+            <th>City</th>
+            <th>Device</th>
+            <th>OS</th>
+            <th>Browser</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in scans[:50] %}
+          <tr>
+            <td>{{ s.scanned_at.strftime('%d %b %Y, %H:%M') }}</td>
+            <td>{{ s.country or '—' }}</td>
+            <td>{{ s.city or '—' }}</td>
+            <td>
+              <span class="badge {% if s.device == 'Mobile' %}badge-mobile{% elif s.device == 'Tablet' %}badge-tablet{% else %}badge-desktop{% endif %}">
+                {{ s.device or '—' }}
+              </span>
+            </td>
+            <td>{{ s.os or '—' }}</td>
+            <td>{{ s.browser or '—' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if scans | length > 50 %}
+    <p style="text-align:center;color:var(--text-muted);font-size:.8rem;margin-top:12px;">Showing 50 most recent of {{ scans | length }} total scans.</p>
+    {% endif %}
+    {% endif %}
+  </div>
+
+  {% endif %}
+
+</main>
+
+<footer>
+  <p>Forge QR &mdash; Free QR code generator</p>
+</footer>
+
+{% if by_day %}
+<script>
+const labels = {{ by_day | map(attribute=0) | list | tojson }};
+const data   = {{ by_day | map(attribute=1) | list | tojson }};
+
+new Chart(document.getElementById('timeChart'), {
+  type: 'bar',
+  data: {
+    labels,
+    datasets: [{
+      label: 'Scans',
+      data,
+      backgroundColor: 'rgba(99,102,241,0.7)',
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { maxTicksLimit: 10 } },
+      y: { beginAtZero: true, ticks: { stepSize: 1 } }
+    }
+  }
+});
+</script>
+{% endif %}
+
+</body>
+</html>

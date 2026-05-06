@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code Marketing Guide — Forge QR</title>
+  <meta name="description" content="The complete guide to using QR codes for marketing: best practices, use cases by industry, design tips, static vs dynamic, scan tracking, and common mistakes to avoid.">
+  <meta name="keywords" content="QR code marketing, QR code best practices, dynamic QR codes, QR code analytics, QR code design tips, how to use QR codes">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://forgeqrcode.com/guide">
+  <meta property="og:title" content="QR Code Marketing Guide — Forge QR">
+  <meta property="og:description" content="Everything you need to know about using QR codes effectively: design, placement, tracking, and industry use cases.">
+  <meta property="og:type" content="article">
+
+  <!-- Google tag -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-HWR5941KV2"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-HWR5941KV2');
+  </script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5198883341858973" crossorigin="anonymous"></script>
+
+  <link rel="icon" type="image/png" href="/static/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    .guide-hero { background: linear-gradient(135deg,#1e293b,#334155); color:#fff; padding:52px 24px; text-align:center; }
+    .guide-hero h1 { font-size:2rem; margin:0 0 10px; }
+    .guide-hero p { color:#cbd5e1; font-size:.95rem; max-width:560px; margin:0 auto; line-height:1.7; }
+    .guide-body { max-width:780px; margin:0 auto; padding:48px 24px 64px; }
+    .guide-toc { background:#f8fafc; border-radius:12px; padding:20px 24px; margin-bottom:48px; border:1px solid var(--border); }
+    .guide-toc h2 { font-size:.85rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); margin:0 0 12px; }
+    .guide-toc ol { margin:0; padding-left:20px; }
+    .guide-toc li { margin-bottom:6px; font-size:.875rem; }
+    .guide-toc a { color:var(--primary); text-decoration:none; }
+    .guide-toc a:hover { text-decoration:underline; }
+    .guide-section { margin-bottom:52px; }
+    .guide-section h2 { font-size:1.25rem; font-weight:700; color:var(--text); margin:0 0 14px; padding-bottom:10px; border-bottom:2px solid var(--border); }
+    .guide-section h3 { font-size:1rem; font-weight:700; color:var(--text); margin:24px 0 8px; }
+    .guide-section p { font-size:.9rem; color:var(--text-muted); line-height:1.75; margin:0 0 14px; }
+    .guide-section ul, .guide-section ol { font-size:.9rem; color:var(--text-muted); line-height:1.75; padding-left:20px; margin:0 0 14px; }
+    .guide-section li { margin-bottom:6px; }
+    .callout { border-radius:10px; padding:16px 20px; margin:20px 0; font-size:.875rem; line-height:1.7; }
+    .callout-tip { background:#f0fdf4; border-left:4px solid #22c55e; color:#166534; }
+    .callout-warn { background:#fffbeb; border-left:4px solid #f59e0b; color:#92400e; }
+    .callout-info { background:#eff6ff; border-left:4px solid #3b82f6; color:#1e40af; }
+    .callout strong { color:inherit; }
+    .industry-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin:20px 0; }
+    .industry-card { background:#fff; border-radius:10px; padding:16px 18px; box-shadow:0 1px 4px rgba(0,0,0,.07); }
+    .industry-card .icon { font-size:1.4rem; margin-bottom:6px; }
+    .industry-card h4 { font-size:.875rem; font-weight:700; color:var(--text); margin:0 0 6px; }
+    .industry-card p { font-size:.8rem; color:var(--text-muted); line-height:1.6; margin:0; }
+    .compare-table { width:100%; border-collapse:collapse; font-size:.875rem; margin:16px 0; }
+    .compare-table th { background:#f8fafc; padding:10px 14px; text-align:left; font-weight:600; color:var(--text); border-bottom:2px solid var(--border); }
+    .compare-table td { padding:10px 14px; border-bottom:1px solid #f1f5f9; color:var(--text-muted); vertical-align:top; }
+    .compare-table tr:last-child td { border-bottom:none; }
+    .yes { color:#16a34a; font-weight:600; }
+    .no { color:#dc2626; font-weight:600; }
+    .cta-box { background:linear-gradient(135deg,#0f766e,#0d9488); border-radius:14px; padding:28px 32px; text-align:center; color:#fff; margin-top:40px; }
+    .cta-box h3 { font-size:1.1rem; font-weight:700; margin:0 0 8px; }
+    .cta-box p { font-size:.875rem; opacity:.9; margin:0 0 18px; }
+    .cta-box a { background:#fff; color:#0f766e; text-decoration:none; padding:10px 24px; border-radius:8px; font-weight:700; font-size:.9rem; }
+    .checklist li { list-style:none; padding-left:0; }
+    .checklist li::before { content:"✅ "; }
+    .back-link { display:inline-block; color:var(--primary); text-decoration:none; font-size:.875rem; margin-bottom:32px; }
+    .back-link:hover { text-decoration:underline; }
+  </style>
+</head>
+<body>
+
+<div class="guide-hero">
+  <div style="font-size:2rem;margin-bottom:12px;">📖</div>
+  <h1>QR Code Marketing Guide</h1>
+  <p>Everything you need to know to use QR codes effectively — from design to placement, tracking, and real-world use cases by industry.</p>
+</div>
+
+<div class="guide-body">
+
+  <a href="/" class="back-link">← Back to Forge QR</a>
+
+  <!-- Table of contents -->
+  <div class="guide-toc">
+    <h2>Contents</h2>
+    <ol>
+      <li><a href="#static-vs-dynamic">Static vs Dynamic QR Codes</a></li>
+      <li><a href="#design">Design Best Practices</a></li>
+      <li><a href="#placement">Where to Place Your QR Code</a></li>
+      <li><a href="#industries">Use Cases by Industry</a></li>
+      <li><a href="#analytics">Tracking &amp; Analytics</a></li>
+      <li><a href="#mistakes">Common Mistakes to Avoid</a></li>
+      <li><a href="#checklist">Launch Checklist</a></li>
+    </ol>
+  </div>
+
+  <!-- 1. Static vs Dynamic -->
+  <div class="guide-section" id="static-vs-dynamic">
+    <h2>1. Static vs Dynamic QR Codes</h2>
+    <p>The most important decision before generating a QR code is choosing between static and dynamic. Each has a distinct purpose.</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr><th></th><th>Static QR</th><th>Dynamic QR</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Content encoded in</td><td>The image itself</td><td>A short redirect URL</td></tr>
+        <tr><td>Change destination later</td><td class="no">No — must reprint</td><td class="yes">Yes — anytime</td></tr>
+        <tr><td>Scan analytics</td><td class="no">No</td><td class="yes">Yes — country, city, device, OS, browser</td></tr>
+        <tr><td>Works without internet</td><td class="yes">Yes (for text/WiFi/vCard)</td><td class="no">No — requires redirect server</td></tr>
+        <tr><td>Best for</td><td>Business cards, WiFi, contacts, permanent URLs</td><td>Campaigns, menus, packaging, events</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-tip">
+      <strong>Rule of thumb:</strong> if you're printing something you'll distribute widely (posters, packaging, merchandise), use a dynamic QR code — even if you think the URL won't change. You'll thank yourself later when it does.
+    </div>
+  </div>
+
+  <!-- 2. Design -->
+  <div class="guide-section" id="design">
+    <h2>2. Design Best Practices</h2>
+
+    <h3>Minimum size</h3>
+    <p>A QR code should be <strong>at least 2 × 2 cm (about 0.8 inches)</strong> in print. Smaller than that risks scanning failures, especially with dense data or decorative dot styles. For large-format prints (banners, posters), scale up proportionally and test at typical viewing distance.</p>
+
+    <h3>Contrast is everything</h3>
+    <p>QR codes rely on contrast between the dark modules and the light background. Always keep the <strong>foreground darker than the background</strong>. Light-on-dark works too, but some older scanners struggle with it. Avoid low-contrast combinations like grey on white or navy on black.</p>
+
+    <div class="callout callout-warn">
+      <strong>Watch out:</strong> always test your QR code with at least two different phones before printing. Decorative styles (circle dots, coloured backgrounds, embedded logos) reduce readability — Forge QR uses high error-correction to compensate, but testing is non-negotiable.
+    </div>
+
+    <h3>Quiet zone</h3>
+    <p>Every QR code needs a clear border of empty space (the "quiet zone") around it — at least 4 modules wide. Don't let your frame, image bleed, or background pattern touch the edge of the QR code.</p>
+
+    <h3>Logos and branding</h3>
+    <p>Embedding a logo in the center is a great way to reinforce brand recognition. Keep the logo <strong>under 30% of the QR area</strong> — Forge QR automatically sizes it to a safe proportion. Logos work best on high error-correction codes (which Forge QR uses by default).</p>
+
+    <h3>Dot and eye styles</h3>
+    <p>Rounded, circle, and gapped dot styles look great but slightly reduce scan reliability compared to classic square dots. Stick with square dots for high-stakes prints (product packaging, medical, legal). Use decorative styles for posters, menus, and social content where rescan is easy.</p>
+
+    <h3>Frame labels</h3>
+    <p>Adding a call-to-action below the QR ("Scan to see the menu", "Get 10% off", "Download the app") dramatically increases scan rates. People are more likely to scan when they know what to expect. Keep it short — under 5 words.</p>
+  </div>
+
+  <!-- 3. Placement -->
+  <div class="guide-section" id="placement">
+    <h2>3. Where to Place Your QR Code</h2>
+
+    <h3>Print media</h3>
+    <ul>
+      <li><strong>Business cards</strong> — link to your portfolio, LinkedIn, or vCard. Place on the back so it doesn't crowd the front.</li>
+      <li><strong>Flyers &amp; brochures</strong> — link to a landing page with more detail. Use dynamic QR so you can update the URL if the campaign changes.</li>
+      <li><strong>Product packaging</strong> — link to product pages, manuals, recipe ideas, or loyalty programs. Dynamic is essential here — you can't reprint packaging.</li>
+      <li><strong>Receipts &amp; invoices</strong> — link to review pages, support portals, or loyalty programs.</li>
+      <li><strong>Posters &amp; banners</strong> — make the QR at least 5 × 5 cm and add a short CTA. Place it at eye level, not at the bottom.</li>
+    </ul>
+
+    <h3>Physical spaces</h3>
+    <ul>
+      <li><strong>Restaurant tables</strong> — menus, ordering systems, loyalty sign-ups. Dynamic QR lets you update the menu without replacing table cards.</li>
+      <li><strong>Retail stores</strong> — product demos, extended descriptions, discount codes at checkout.</li>
+      <li><strong>Events &amp; conferences</strong> — session schedules, speaker bios, app downloads, Wi-Fi access.</li>
+      <li><strong>Real estate</strong> — property details, virtual tours, agent contact cards.</li>
+    </ul>
+
+    <div class="callout callout-warn">
+      <strong>Never place a QR code</strong> where there's no signal (underground car parks, basements) unless it encodes static content like WiFi credentials or a vCard that works offline.
+    </div>
+
+    <h3>Digital surfaces</h3>
+    <p>QR codes also work on screens — in email footers, presentation slides, digital signage, and social media posts. In these contexts, make sure the QR is large enough to scan comfortably from the viewing distance.</p>
+  </div>
+
+  <!-- 4. Industries -->
+  <div class="guide-section" id="industries">
+    <h2>4. Use Cases by Industry</h2>
+
+    <div class="industry-grid">
+      <div class="industry-card">
+        <div class="icon">🍽️</div>
+        <h4>Restaurants &amp; Hospitality</h4>
+        <p>Digital menus, table ordering, WiFi access, review links, loyalty programs, event bookings.</p>
+      </div>
+      <div class="industry-card">
+        <div class="icon">🛍️</div>
+        <h4>Retail &amp; E-commerce</h4>
+        <p>Product pages, size guides, discount codes, in-store app downloads, loyalty sign-ups, reorder links.</p>
+      </div>
+      <div class="industry-card">
+        <div class="icon">🏥</div>
+        <h4>Healthcare</h4>
+        <p>Patient check-in, appointment booking, medication instructions, contact cards for staff directories.</p>
+      </div>
+      <div class="industry-card">
+        <div class="icon">🎓</div>
+        <h4>Education</h4>
+        <p>Course materials, assignment links, event schedules, library resources, campus WiFi credentials.</p>
+      </div>
+      <div class="industry-card">
+        <div class="icon">🏢</div>
+        <h4>Real Estate</h4>
+        <p>Virtual tours, property specs, agent vCards, open house schedules, mortgage calculator links.</p>
+      </div>
+      <div class="industry-card">
+        <div class="icon">🎤</div>
+        <h4>Events &amp; Entertainment</h4>
+        <p>Ticket verification, artist bios, set times, merchandise stores, social follow links, feedback forms.</p>
+      </div>
+      <div class="industry-card">
+        <div class="icon">📦</div>
+        <h4>Manufacturing &amp; Logistics</h4>
+        <p>Asset tracking, product authentication, maintenance manuals, batch traceability, warranty registration.</p>
+      </div>
+      <div class="industry-card">
+        <div class="icon">💼</div>
+        <h4>Professional Services</h4>
+        <p>Digital business cards, portfolio links, booking pages, client portals, proposal landing pages.</p>
+      </div>
+      <div class="industry-card">
+        <div class="icon">📱</div>
+        <h4>App Publishers</h4>
+        <p>App Store QR codes that auto-detect iOS vs Android, sending each user to the right store automatically.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Analytics -->
+  <div class="guide-section" id="analytics">
+    <h2>5. Tracking &amp; Analytics</h2>
+    <p>One of the biggest advantages of dynamic QR codes is the ability to measure real-world engagement — something print media couldn't do before. Here's how to use scan data effectively.</p>
+
+    <h3>What Forge QR tracks</h3>
+    <ul>
+      <li><strong>Total scans over time</strong> — see daily trends and identify peak engagement periods</li>
+      <li><strong>Country &amp; city</strong> — understand where your audience is geographically</li>
+      <li><strong>Device type</strong> — mobile, tablet, or desktop (helps optimise your landing page)</li>
+      <li><strong>Operating system</strong> — iOS, Android, Windows, macOS, Linux</li>
+      <li><strong>Browser</strong> — Chrome, Safari, Firefox, Edge</li>
+    </ul>
+
+    <h3>Using data to improve campaigns</h3>
+    <ul>
+      <li>If most scans come from <strong>mobile</strong>, make sure your landing page is fully mobile-optimised.</li>
+      <li>If scans spike on <strong>specific days</strong>, consider timing your promotions or restocking to match.</li>
+      <li>If you see scans from <strong>unexpected countries</strong>, you may have an international audience worth targeting.</li>
+      <li>Low scan counts on a high-traffic placement suggest a <strong>design or CTA problem</strong> — test a different dot style, larger size, or stronger call-to-action.</li>
+    </ul>
+
+    <div class="callout callout-info">
+      <strong>Tip:</strong> use UTM parameters in your destination URL (e.g. <code>?utm_source=poster&amp;utm_medium=qr&amp;utm_campaign=summer24</code>) to combine Forge QR scan data with Google Analytics for even deeper insights.
+    </div>
+
+    <h3>A/B testing with QR codes</h3>
+    <p>Create two dynamic QR codes pointing to the same URL — one with a "Scan for 10% off" frame label and one without. Place them in similar locations and compare scan rates after a week. This is a simple but powerful way to optimise your messaging.</p>
+  </div>
+
+  <!-- 6. Mistakes -->
+  <div class="guide-section" id="mistakes">
+    <h2>6. Common Mistakes to Avoid</h2>
+
+    <h3>Linking to a non-mobile-friendly page</h3>
+    <p>Over 90% of QR scans happen on mobile devices. If your landing page isn't responsive, you'll lose almost every visitor. Always test the destination on a phone before printing.</p>
+
+    <h3>No call-to-action</h3>
+    <p>A bare QR code with no context gets ignored. Always tell people what they'll get by scanning: "Scan for today's menu", "Get your discount code", "Watch the product demo".</p>
+
+    <h3>Printing a static QR for a campaign</h3>
+    <p>If a campaign URL changes, expires, or goes offline, a static QR code becomes a dead end — permanently. Use dynamic QR codes for anything campaign-related so you can redirect to a new page without reprinting.</p>
+
+    <h3>Too small to scan</h3>
+    <p>Anything smaller than 2 cm at typical scanning distance (30–40 cm) risks failure. For outdoor posters viewed from 1–2 metres away, aim for at least 8–10 cm.</p>
+
+    <h3>Low contrast design</h3>
+    <p>Creative colour choices can backfire. Always check that the foreground-to-background contrast ratio is high. When in doubt, test with three different phones and a QR scanner app.</p>
+
+    <h3>Placing QR codes where there's no connectivity</h3>
+    <p>Dynamic QR codes require an internet connection to redirect. Don't place them in areas with no mobile signal unless the content is static (WiFi passwords and vCards work offline).</p>
+
+    <h3>Not saving the Manage link</h3>
+    <p>The Manage link for a dynamic QR code is the only way to edit the destination or view stats. Store it somewhere safe — it cannot be recovered if lost.</p>
+  </div>
+
+  <!-- 7. Checklist -->
+  <div class="guide-section" id="checklist">
+    <h2>7. Launch Checklist</h2>
+    <p>Before printing or publishing your QR code, run through this checklist:</p>
+    <ul class="checklist">
+      <li>Scanned and tested on at least two different phones</li>
+      <li>Landing page is mobile-friendly and loads in under 3 seconds</li>
+      <li>QR code is at least 2 × 2 cm in print (larger for posters)</li>
+      <li>High contrast between foreground and background</li>
+      <li>Clear quiet zone — nothing touching the edges</li>
+      <li>Call-to-action label is present and specific</li>
+      <li>Dynamic QR chosen for any campaign or changeable destination</li>
+      <li>Manage link saved securely</li>
+      <li>UTM parameters added to destination URL (for GA integration)</li>
+      <li>Stats page bookmarked to monitor after launch</li>
+    </ul>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-box">
+    <h3>Ready to create your QR code?</h3>
+    <p>Free, no account required. Static, dynamic, and App Store QR codes with full customisation and built-in analytics.</p>
+    <a href="/">Generate a QR Code →</a>
+  </div>
+
+</div>
+
+<footer>
+  <p>Forge QR &mdash; Free QR code generator &mdash; No account required</p>
+  <p style="margin:6px 0;"><a href="/guide" style="color:#94a3b8;font-size:.85rem;text-decoration:none;">📖 QR Code Marketing Guide</a></p>
+</footer>
+
+</body>
+</html>

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, DateTime
+from sqlalchemy import Column, String, Integer, DateTime, Index
 from database import Base
 from datetime import datetime
 
@@ -24,6 +24,19 @@ class AppRedirect(Base):
     scan_count = Column(Integer, default=0)
     created_at = Column(DateTime, default=datetime.utcnow)
     last_scan = Column(DateTime, nullable=True)
+
+
+class QRScan(Base):
+    __tablename__ = "qr_scans"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    short_code = Column(String(16), index=True, nullable=False)
+    scanned_at = Column(DateTime, default=datetime.utcnow, index=True)
+    country = Column(String(64), nullable=True)
+    city = Column(String(128), nullable=True)
+    device = Column(String(32), nullable=True)   # mobile / tablet / desktop
+    os = Column(String(64), nullable=True)
+    browser = Column(String(64), nullable=True)
 
 
 class SiteStats(Base):

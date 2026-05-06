@@ -1,10 +1,12 @@
 import base64
 import io
 import os
+import re
 import secrets
 import string
 from datetime import datetime
 
+import httpx
 import qrcode
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, UploadFile
@@ -25,7 +27,7 @@ from qrcode.image.styles.moduledrawers.pil import (
 from sqlalchemy.orm import Session
 
 from database import get_db, init_db
-from models import AppRedirect, DynamicQR, PageVisit, SiteStats
+from models import AppRedirect, DynamicQR, PageVisit, QRScan, SiteStats
 
 load_dotenv()
 
@@ -131,6 +133,58 @@ async def startup():
 
 def _short_code(length: int = 8) -> str:
     return "".join(secrets.choice(string.ascii_letters + string.digits) for _ in range(length))
+
+
+def _parse_ua(ua: str):
+    ua_l = ua.lower()
+    # Device
+    if any(k in ua_l for k in ("iphone", "android", "mobile", "blackberry", "windows phone")):
+        device = "Mobile"
+    elif any(k in ua_l for k in ("ipad", "tablet")):
+        device = "Tablet"
+    else:
+        device = "Desktop"
+    # OS
+    if "windows nt" in ua_l:
+        os_name = "Windows"
+    elif "iphone" in ua_l or "ipad" in ua_l:
+        os_name = "iOS"
+    elif "android" in ua_l:
+        os_name = "Android"
+    elif "mac os" in ua_l or "macos" in ua_l:
+        os_name = "macOS"
+    elif "linux" in ua_l:
+        os_name = "Linux"
+    else:
+        os_name = "Other"
+    # Browser
+    if "edg/" in ua_l or "edge/" in ua_l:
+        browser = "Edge"
+    elif "opr/" in ua_l or "opera" in ua_l:
+        browser = "Opera"
+    elif "chrome/" in ua_l:
+        browser = "Chrome"
+    elif "firefox/" in ua_l:
+        browser = "Firefox"
+    elif "safari/" in ua_l:
+        browser = "Safari"
+    else:
+        browser = "Other"
+    return device, os_name, browser
+
+
+async def _geolocate(ip: str):
+    if not ip or ip in ("127.0.0.1", "::1"):
+        return None, None
+    try:
+        async with httpx.AsyncClient(timeout=2.0) as client:
+            r = await client.get(f"http://ip-api.com/json/{ip}?fields=country,city,status")
+            data = r.json()
+            if data.get("status") == "success":
+                return data.get("country"), data.get("city")
+    except Exception:
+        pass
+    return None, None
 
 
 def _hex_to_rgb(hex_color: str) -> tuple:
@@ -312,6 +366,11 @@ async def index(request: Request, db: Session = Depends(get_db)):
     return templates.TemplateResponse("index.html", {"request": request, "visitor_count": stats.visitor_count})
 
 
+@app.get("/guide")
+async def guide(request: Request):
+    return templates.TemplateResponse("guide.html", {"request": request})
+
+
 @app.get("/admin")
 async def admin_stats(request: Request, key: str = "", db: Session = Depends(get_db)):
     if ADMIN_KEY and key != ADMIN_KEY:
@@ -368,15 +427,85 @@ async def manage_page(request: Request, short_code: str, token: str, db: Session
     )
 
 
+@app.get("/stats/{short_code}")
+async def qr_stats(request: Request, short_code: str, token: str, db: Session = Depends(get_db)):
+    entry = db.query(DynamicQR).filter(DynamicQR.short_code == short_code).first()
+    if not entry or entry.edit_token != token:
+        raise HTTPException(status_code=403, detail="Invalid or expired link")
+
+    scans = db.query(QRScan).filter(QRScan.short_code == short_code).order_by(QRScan.scanned_at.desc()).all()
+
+    # Aggregate by day (last 30 days)
+    is_pg = not DATABASE_URL.startswith("sqlite")
+    if is_pg:
+        by_day = db.execute(text(
+            "SELECT DATE(scanned_at) as d, COUNT(*) as c FROM qr_scans WHERE short_code = :sc "
+            "GROUP BY d ORDER BY d DESC LIMIT 30"
+        ), {"sc": short_code}).fetchall()
+    else:
+        by_day = db.execute(text(
+            "SELECT DATE(scanned_at) as d, COUNT(*) as c FROM qr_scans WHERE short_code = :sc "
+            "GROUP BY d ORDER BY d DESC LIMIT 30"
+        ), {"sc": short_code}).fetchall()
+
+    # Country breakdown
+    countries = db.execute(text(
+        "SELECT COALESCE(country, 'Unknown') as c, COUNT(*) as n FROM qr_scans WHERE short_code = :sc GROUP BY c ORDER BY n DESC LIMIT 10"
+    ), {"sc": short_code}).fetchall()
+
+    # Device breakdown
+    devices = db.execute(text(
+        "SELECT COALESCE(device, 'Unknown') as d, COUNT(*) as n FROM qr_scans WHERE short_code = :sc GROUP BY d ORDER BY n DESC"
+    ), {"sc": short_code}).fetchall()
+
+    # OS breakdown
+    oses = db.execute(text(
+        "SELECT COALESCE(os, 'Unknown') as o, COUNT(*) as n FROM qr_scans WHERE short_code = :sc GROUP BY o ORDER BY n DESC"
+    ), {"sc": short_code}).fetchall()
+
+    # Browser breakdown
+    browsers = db.execute(text(
+        "SELECT COALESCE(browser, 'Unknown') as b, COUNT(*) as n FROM qr_scans WHERE short_code = :sc GROUP BY b ORDER BY n DESC"
+    ), {"sc": short_code}).fetchall()
+
+    return templates.TemplateResponse("qr_stats.html", {
+        "request": request,
+        "entry": entry,
+        "token": token,
+        "scans": scans,
+        "by_day": list(reversed(by_day)),
+        "countries": countries,
+        "devices": devices,
+        "oses": oses,
+        "browsers": browsers,
+        "base_url": BASE_URL,
+    })
+
+
 # ── Redirects ─────────────────────────────────────────────────────────────────
 
 @app.get("/r/{short_code}")
-async def redirect_dynamic(short_code: str, db: Session = Depends(get_db)):
+async def redirect_dynamic(short_code: str, request: Request, db: Session = Depends(get_db)):
     entry = db.query(DynamicQR).filter(DynamicQR.short_code == short_code).first()
     if not entry:
         raise HTTPException(status_code=404, detail="QR code not found")
     entry.scan_count += 1
     entry.last_scan = datetime.utcnow()
+
+    ua = request.headers.get("user-agent", "")
+    device, os_name, browser = _parse_ua(ua)
+    ip = request.headers.get("x-forwarded-for", request.client.host if request.client else "").split(",")[0].strip()
+    country, city = await _geolocate(ip)
+
+    db.add(QRScan(
+        short_code=short_code,
+        scanned_at=datetime.utcnow(),
+        country=country,
+        city=city,
+        device=device,
+        os=os_name,
+        browser=browser,
+    ))
     db.commit()
     return RedirectResponse(url=entry.destination_url, status_code=302)
 

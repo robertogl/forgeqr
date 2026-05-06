@@ -76,17 +76,21 @@
          href="/api/qr/dynamic/{{ entry.short_code }}/download?token={{ token }}">
         ⬇ Download PNG
       </a>
+      <a class="btn-download visible" style="text-decoration:none;display:block;margin-top:10px;background:#0f766e;color:#fff;border-color:#0f766e;"
+         href="/stats/{{ entry.short_code }}?token={{ token }}">
+        📊 View Scan Stats
+      </a>
 
       <div style="margin-top:20px;">
         <div class="copy-row">
           <label>Link</label>
           <input class="copy-input" value="{{ redirect_url }}" readonly>
-          <button class="btn-copy" data-value="{{ redirect_url }}">Copy</button>
+          <button class="btn-copy" data-value="{{ redirect_url }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="13" height="13" x="9" y="9" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
         </div>
         <div class="copy-row" style="margin-top:8px;">
           <label>Manage</label>
           <input class="copy-input" value="{{ base_url }}/manage/{{ entry.short_code }}?token={{ token }}" readonly>
-          <button class="btn-copy" data-value="{{ base_url }}/manage/{{ entry.short_code }}?token={{ token }}">Copy</button>
+          <button class="btn-copy" data-value="{{ base_url }}/manage/{{ entry.short_code }}?token={{ token }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="13" height="13" x="9" y="9" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
         </div>
       </div>
     </div>
@@ -151,13 +155,15 @@ document.getElementById('update-form').addEventListener('submit', async (e) => {
 });
 
 // Copy buttons
+const CLIP_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="13" height="13" x="9" y="9" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+const CHECK_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
 document.querySelectorAll('.btn-copy').forEach(btn => {
   btn.addEventListener('click', () => {
     const value = btn.dataset.value;
     navigator.clipboard.writeText(value).then(() => {
-      btn.textContent = '✓ Copied';
+      btn.innerHTML = CHECK_SVG;
       btn.classList.add('copied');
-      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+      setTimeout(() => { btn.innerHTML = CLIP_SVG; btn.classList.remove('copied'); }, 2000);
     });
   });
 });
