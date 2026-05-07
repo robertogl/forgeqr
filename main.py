@@ -345,11 +345,12 @@ def robots_txt():
 def sitemap_xml():
     content = """<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://forgeqr.onrender.com/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>1.0</priority>
-  </url>
+  <url><loc>https://forgeqrcode.com/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://forgeqrcode.com/guide</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://forgeqrcode.com/faq</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://forgeqrcode.com/about</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://forgeqrcode.com/contact</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://forgeqrcode.com/privacy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
 </urlset>"""
     return Response(content=content, media_type="application/xml")
 
@@ -453,6 +454,11 @@ async def submit_contact(
     ))
     db.commit()
     return {"success": True}
+
+
+@app.get("/faq")
+async def faq(request: Request):
+    return templates.TemplateResponse("faq.html", {"request": request})
 
 
 @app.get("/privacy")

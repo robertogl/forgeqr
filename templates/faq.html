@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code FAQ — Forge QR</title>
+  <meta name="description" content="Answers to the most common questions about QR codes: how they work, static vs dynamic, size, scanning, tracking, logos, expiry, and more.">
+  <meta name="keywords" content="QR code FAQ, QR code questions, how does a QR code work, do QR codes expire, static vs dynamic QR code, QR code size, QR code with logo, how to scan QR code">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://forgeqrcode.com/faq">
+  <meta property="og:title" content="QR Code FAQ — Forge QR">
+  <meta property="og:description" content="Everything you wanted to know about QR codes, answered.">
+  <meta property="og:type" content="article">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-HWR5941KV2"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-HWR5941KV2');</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5198883341858973" crossorigin="anonymous"></script>
+  <link rel="icon" type="image/png" href="/static/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+
+  <!-- JSON-LD FAQ schema for Google rich results -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {"@type":"Question","name":"What is a QR code?","acceptedAnswer":{"@type":"Answer","text":"A QR code (Quick Response code) is a two-dimensional barcode that can be scanned by any smartphone camera to instantly open a URL, display text, connect to Wi-Fi, save a contact, and more."}},
+      {"@type":"Question","name":"What is the difference between a static and a dynamic QR code?","acceptedAnswer":{"@type":"Answer","text":"A static QR code encodes content directly into the image — it is permanent and cannot be changed. A dynamic QR code points to a short redirect URL, so the destination can be updated at any time without reprinting the code."}},
+      {"@type":"Question","name":"Do QR codes expire?","acceptedAnswer":{"@type":"Answer","text":"Static QR codes never expire — they work as long as the encoded content (e.g. a URL) remains valid. Dynamic QR codes depend on the redirect server remaining active."}},
+      {"@type":"Question","name":"What size should a QR code be for print?","acceptedAnswer":{"@type":"Answer","text":"At minimum 2 × 2 cm (about 0.8 inches) for close-range scanning. For posters or banners viewed from a distance, aim for at least 5–10 cm. Always test before printing."}},
+      {"@type":"Question","name":"Can I put a logo inside a QR code?","acceptedAnswer":{"@type":"Answer","text":"Yes. QR codes use error correction that allows up to 30% of the code to be obscured. Forge QR automatically sizes your logo to a safe proportion."}},
+      {"@type":"Question","name":"How do I track QR code scans?","acceptedAnswer":{"@type":"Answer","text":"Create a dynamic QR code on Forge QR. Every dynamic code comes with a private stats page showing total scans, countries, cities, device types, operating systems, and browsers."}},
+      {"@type":"Question","name":"Are Forge QR codes really free?","acceptedAnswer":{"@type":"Answer","text":"Yes. All features on Forge QR are completely free — no account, no watermark, no usage limits, and no credit card required."}},
+      {"@type":"Question","name":"Can I change the destination of a QR code after printing?","acceptedAnswer":{"@type":"Answer","text":"Only with dynamic QR codes. Static QR codes encode the content permanently and cannot be updated. With a dynamic QR code you can change the destination URL at any time via your private Manage link."}},
+      {"@type":"Question","name":"What content types can a QR code encode?","acceptedAnswer":{"@type":"Answer","text":"QR codes can encode URLs, plain text, Wi-Fi credentials, email addresses, phone numbers, SMS messages, vCard contacts, and social media profile links."}},
+      {"@type":"Question","name":"How many characters can a QR code hold?","acceptedAnswer":{"@type":"Answer","text":"Up to 4,296 alphanumeric characters or 7,089 numeric characters, depending on the error correction level. In practice, shorter content produces simpler, more scannable codes."}}
+    ]
+  }
+  </script>
+
+  <style>
+    .faq-hero { background:linear-gradient(135deg,#1e293b,#334155); color:#fff; padding:52px 24px; text-align:center; }
+    .faq-hero h1 { font-size:2rem; margin:0 0 10px; }
+    .faq-hero p { color:#cbd5e1; font-size:.95rem; max-width:500px; margin:0 auto; line-height:1.7; }
+    .faq-body { max-width:760px; margin:0 auto; padding:48px 24px 64px; }
+    .faq-category { margin-bottom:44px; }
+    .faq-category h2 { font-size:1rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:#0d9488; margin:0 0 16px; }
+    .faq-item { border-bottom:1px solid var(--border); }
+    .faq-item:last-child { border-bottom:none; }
+    .faq-question {
+      width:100%; background:none; border:none; text-align:left;
+      padding:16px 0; font-size:.95rem; font-weight:600; color:var(--text);
+      cursor:pointer; display:flex; justify-content:space-between; align-items:center;
+      gap:12px; font-family:inherit;
+    }
+    .faq-question:hover { color:var(--primary); }
+    .faq-chevron { flex-shrink:0; transition:transform .25s; color:var(--text-muted); }
+    .faq-item.open .faq-chevron { transform:rotate(180deg); }
+    .faq-answer { display:none; padding:0 0 16px; font-size:.875rem; color:var(--text-muted); line-height:1.75; }
+    .faq-answer a { color:var(--primary); }
+    .faq-item.open .faq-answer { display:block; }
+    .cta-box { background:linear-gradient(135deg,#0f766e,#0d9488); border-radius:14px; padding:28px 32px; text-align:center; color:#fff; margin-top:48px; }
+    .cta-box h3 { font-size:1.1rem; font-weight:700; margin:0 0 8px; }
+    .cta-box p { font-size:.875rem; opacity:.9; margin:0 0 18px; }
+    .cta-box a { background:#fff; color:#0f766e; text-decoration:none; padding:10px 24px; border-radius:8px; font-weight:700; font-size:.9rem; }
+  </style>
+</head>
+<body>
+
+<div class="faq-hero">
+  <div style="font-size:2rem;margin-bottom:12px;">❓</div>
+  <h1>QR Code FAQ</h1>
+  <p>Everything you wanted to know about QR codes — from the basics to advanced tracking and design.</p>
+</div>
+
+<div class="faq-body">
+
+  <!-- Basics -->
+  <div class="faq-category">
+    <h2>The Basics</h2>
+
+    <div class="faq-item">
+      <button class="faq-question">
+        What is a QR code?
+        <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        A QR code (Quick Response code) is a two-dimensional barcode that any smartphone camera can scan to instantly open a URL, display text, connect to Wi-Fi, save a contact, and much more. They were invented in 1994 and have become the standard bridge between the physical and digital world.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question">
+        How do I scan a QR code?
+        <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        On iPhone (iOS 11+) and most Android devices, just open the default Camera app and point it at the QR code — a notification will appear to open the link. No separate app needed. On older devices you may need a dedicated QR scanner app.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question">
+        What content can a QR code encode?
+        <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        QR codes can encode: <strong>URLs</strong>, <strong>plain text</strong>, <strong>Wi-Fi credentials</strong> (network name, password, security type), <strong>email addresses</strong> with pre-filled subject and body, <strong>phone numbers</strong>, <strong>vCard contacts</strong>, and <strong>social media profile links</strong>. Forge QR supports all of these in the Static QR tab.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question">
+        How many characters can a QR code hold?
+        <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        Up to 4,296 alphanumeric characters or 7,089 numeric characters, depending on the error correction level. In practice, shorter content produces simpler, less dense codes that are faster and more reliable to scan. For long URLs, dynamic QR codes encode a short redirect instead of the full URL, keeping the code simple.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question">
+        Do QR codes expire?
+        <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        Static QR codes never expire — the code itself is permanent. However, if the URL you encoded goes offline or changes, the QR code will lead to a broken page. Dynamic QR codes on Forge QR are kept active indefinitely. If you ever need to update the destination, you can do so from your Manage link.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Static vs Dynamic -->
+  <div class="faq-category">
+    <h2>Static vs Dynamic</h2>
+
+    <div class="faq-item">
+      <button class="faq-question">
+        What is the difference between a static and a dynamic QR code?
+        <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        A <strong>static QR code</strong> encodes content directly into the image — it is permanent and cannot be changed after generation. A <strong>dynamic QR code</strong> encodes a short redirect URL instead, so you can update the destination at any time without changing or reprinting the code itself. Dynamic codes also come with scan analytics.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question">
+        Can I change the destination of a QR code after printing?
+        <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        Only with <strong>dynamic QR codes</strong>. After creating one on Forge QR, you receive a private Manage link. Use it to update the destination URL any time — your printed QR code image stays exactly the same. Static QR codes encode the content permanently and cannot be updated.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question">
+        Which type should I choose for my use case?
+        <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        Use <strong>static</strong> for: business cards, Wi-Fi access, vCard contacts, or any content that will never change.<br><br>
+        Use <strong>dynamic</strong> for: restaurant menus, marketing campaigns, product packaging, event posters, or any URL that might change — or when you want to track how many people scan the code and where they are.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question">
+        Does a dynamic QR code work without internet?
+        <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        No — dynamic QR codes redirect through Forge QR's servers, so the person scanning needs an internet connection. Static QR codes that encode text, Wi-Fi credentials, or vCard contacts work offline because all the information is inside the code itself.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Design & Print -->
+  <div class="faq-category">
+    <h2>Design &amp; Print</h2>
+
+    <div class="faq-item">
+      <button class="faq-question">
+        What size should my QR code be?
+        <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        A safe minimum for close-range scanning (business cards, table menus) is <strong>2 × 2 cm</strong>. For wall posters scanned from 1 metre away, aim for at least <strong>5 × 5 cm</strong>. For large outdoor signage, scale proportionally. Always test with a real device before printing in bulk.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question">
+        Can I put a logo inside a QR code?
+        <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        Yes. QR codes include error correction that allows part of the code to be obscured and still scan correctly. Forge QR automatically sizes your uploaded logo to a safe proportion and uses the highest error correction level to compensate. Always test the result on a real phone before printing.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question">
+        Can I use colours other than black and white?
+        <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        Yes — Forge QR lets you set any foreground and background colour. The key requirement is <strong>sufficient contrast</strong> between the two. Avoid similar shades (e.g. dark blue on black) as scanners may fail to read the code. Always test coloured QR codes on multiple devices before printing.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question">
+        What file format does Forge QR download?
+        <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        Forge QR downloads high-resolution <strong>PNG</strong> files. PNG supports transparency (when using circular or rounded shapes) and is suitable for both digital use and professional print at standard print sizes. For very large format printing (banners, billboards) ask your print shop if they need a higher resolution export.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question">
+        What is a frame label and should I use one?
+        <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        A frame label adds a line of text below (or inside) your QR code — for example "Scan to see the menu" or "Get 10% off". Studies consistently show that QR codes with a clear call-to-action get significantly more scans than bare codes. Keep the label short (under 5 words) and specific about what the user will get.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Tracking & Analytics -->
+  <div class="faq-category">
+    <h2>Tracking &amp; Analytics</h2>
+
+    <div class="faq-item">
+      <button class="faq-question">
+        How do I track how many times my QR code is scanned?
+        <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        Create a <strong>dynamic QR code</strong> on Forge QR. Each dynamic code comes with a private Manage link, and from there you can open the Scan Stats page — showing total scans over time, a day-by-day chart, top countries and cities, device type (mobile/tablet/desktop), operating system, and browser breakdown.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question">
+        What data is collected when someone scans my QR code?
+        <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        For each scan we log: approximate country and city (from IP address — the IP itself is not stored), device type, operating system, browser, and timestamp. No personally identifiable information is collected. See our <a href="/privacy">Privacy Policy</a> for full details.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question">
+        Can I combine Forge QR analytics with Google Analytics?
+        <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        Yes. Add UTM parameters to your destination URL — for example <code>https://yoursite.com/page?utm_source=poster&amp;utm_medium=qr&amp;utm_campaign=summer</code>. Google Analytics will then attribute sessions coming from that QR code correctly, giving you deeper insight alongside Forge QR's own scan data.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- App Store QR -->
+  <div class="faq-category">
+    <h2>App Store QR Codes</h2>
+
+    <div class="faq-item">
+      <button class="faq-question">
+        What is an App Store QR code?
+        <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        An App Store QR code is a smart redirect that detects the scanner's device and sends them to the right store automatically — iPhone and iPad users go to the Apple App Store, Android users go to Google Play, and desktop users go to a fallback URL of your choice. One code works for all platforms.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question">
+        Do I need both an iOS and Android URL?
+        <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        No — you can provide just one. If only an iOS URL is set, Android users will fall back to the fallback URL (or the iOS URL if no fallback is set). Forge QR requires at least one store URL to generate the code.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Pricing -->
+  <div class="faq-category">
+    <h2>Pricing &amp; Account</h2>
+
+    <div class="faq-item">
+      <button class="faq-question">
+        Is Forge QR really free?
+        <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        Yes, completely. No account required, no watermarks, no usage caps, no credit card. Every feature — including dynamic QR codes, scan analytics, logo upload, and all customisation options — is free for everyone.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question">
+        Do I need to create an account?
+        <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        No. Forge QR works without any account or sign-up. For dynamic QR codes, you receive a private Manage link — save it somewhere safe, as it is the only way to edit your QR code or view its stats. There is no account to recover it from.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question">
+        I lost my Manage link — can I recover it?
+        <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-answer">
+        Unfortunately not — since there are no accounts, Forge QR has no way to verify ownership and recover a lost Manage link. If this happens, the easiest solution is to generate a new dynamic QR code and reprint or redistribute it. This is why we recommend saving the Manage link somewhere secure (a notes app, email to yourself, password manager) right after generating the code.
+      </div>
+    </div>
+
+  </div>
+
+  <div class="cta-box">
+    <h3>Ready to create your QR code?</h3>
+    <p>Free, no account required. Static, dynamic, and App Store QR codes with full customisation and built-in analytics.</p>
+    <a href="/">Generate a QR Code →</a>
+  </div>
+
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:28px;">
+    <a href="/" style="padding:10px 22px;border-radius:9px;font-size:.875rem;font-weight:600;text-decoration:none;background:var(--primary);color:#fff;">← Back to Forge QR</a>
+    <a href="/guide" style="padding:10px 22px;border-radius:9px;font-size:.875rem;font-weight:600;text-decoration:none;background:#f1f5f9;color:var(--text);">📖 Marketing Guide</a>
+  </div>
+
+</div>
+
+<footer>
+  <p>Forge QR &mdash; Free QR code generator &mdash; No account required</p>
+  <p style="margin:8px 0;display:flex;flex-wrap:wrap;justify-content:center;gap:16px;">
+    <a href="/guide" style="color:#94a3b8;font-size:.82rem;text-decoration:none;">📖 Marketing Guide</a>
+    <a href="/faq" style="color:#94a3b8;font-size:.82rem;text-decoration:none;">FAQ</a>
+    <a href="/about" style="color:#94a3b8;font-size:.82rem;text-decoration:none;">About</a>
+    <a href="/contact" style="color:#94a3b8;font-size:.82rem;text-decoration:none;">Contact</a>
+    <a href="/privacy" style="color:#94a3b8;font-size:.82rem;text-decoration:none;">Privacy Policy</a>
+  </p>
+</footer>
+
+<script>
+document.querySelectorAll('.faq-question').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const item = btn.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  });
+});
+</script>
+
+{% include "feedback_widget.html" %}
+</body>
+</html>
