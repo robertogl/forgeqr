@@ -410,6 +410,15 @@ async def delete_testimonial(tid: int, key: str = "", db: Session = Depends(get_
     return RedirectResponse(url=f"/admin?key={key}", status_code=302)
 
 
+@app.get("/admin/reset-scans")
+async def reset_scans(key: str = "", db: Session = Depends(get_db)):
+    if ADMIN_KEY and key != ADMIN_KEY:
+        raise HTTPException(status_code=403, detail="Invalid key")
+    db.query(QRScan).delete()
+    db.commit()
+    return RedirectResponse(url=f"/admin?key={key}", status_code=302)
+
+
 @app.post("/api/feedback")
 async def submit_feedback(
     message: str = Form(...),

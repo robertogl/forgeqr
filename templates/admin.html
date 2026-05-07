@@ -56,6 +56,10 @@
     </div>
   </div>
 
+  <div style="margin-bottom:24px;display:flex;gap:10px;flex-wrap:wrap;">
+    <a href="/admin/reset-scans?key={{ admin_key }}" onclick="return confirm('Delete all QR scan records?')" style="padding:8px 18px;border-radius:8px;font-size:.82rem;font-weight:600;text-decoration:none;background:#dc2626;color:#fff;">Reset QR scans</a>
+  </div>
+
   {% set max_day = by_day | map(attribute='c') | max if by_day else 1 %}
   <p class="section-title">Last 30 Days</p>
   <div class="table-card">
