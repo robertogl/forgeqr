@@ -337,7 +337,7 @@ def ads_txt():
 
 @app.get("/robots.txt", include_in_schema=False)
 def robots_txt():
-    content = "User-agent: *\nAllow: /\nDisallow: /admin\nSitemap: https://forgeqr.onrender.com/sitemap.xml\n"
+    content = "User-agent: *\nAllow: /\nDisallow: /admin\nSitemap: https://forgeqrcode.com/sitemap.xml\n"
     return PlainTextResponse(content)
 
 
