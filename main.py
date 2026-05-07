@@ -27,7 +27,7 @@ from qrcode.image.styles.moduledrawers.pil import (
 from sqlalchemy.orm import Session
 
 from database import get_db, init_db
-from models import AppRedirect, DynamicQR, Feedback, PageVisit, QRScan, SiteStats, Testimonial
+from models import AppRedirect, ContactMessage, DynamicQR, Feedback, PageVisit, QRScan, SiteStats, Testimonial
 
 load_dotenv()
 
@@ -427,6 +427,39 @@ async def submit_feedback(
     return {"success": True}
 
 
+@app.get("/about")
+async def about(request: Request):
+    return templates.TemplateResponse("about.html", {"request": request})
+
+
+@app.get("/contact")
+async def contact(request: Request):
+    return templates.TemplateResponse("contact.html", {"request": request})
+
+
+@app.post("/api/contact")
+async def submit_contact(
+    name: str = Form(...),
+    email: str = Form(...),
+    message: str = Form(...),
+    db: Session = Depends(get_db),
+):
+    if not name.strip() or not email.strip() or not message.strip():
+        raise HTTPException(status_code=400, detail="All fields are required")
+    db.add(ContactMessage(
+        name=name.strip()[:120],
+        email=email.strip()[:254],
+        message=message.strip()[:3000],
+    ))
+    db.commit()
+    return {"success": True}
+
+
+@app.get("/privacy")
+async def privacy(request: Request):
+    return templates.TemplateResponse("privacy.html", {"request": request})
+
+
 @app.get("/guide")
 async def guide(request: Request):
     return templates.TemplateResponse("guide.html", {"request": request})
@@ -465,6 +498,7 @@ async def admin_stats(request: Request, key: str = "", db: Session = Depends(get
     qr_total = db.query(func.count(DynamicQR.short_code)).scalar()
     qr_scans = db.query(func.sum(DynamicQR.scan_count)).scalar() or 0
     feedback = db.query(Feedback).order_by(Feedback.submitted_at.desc()).limit(50).all()
+    contacts = db.query(ContactMessage).order_by(ContactMessage.submitted_at.desc()).limit(50).all()
     pending = db.query(Testimonial).filter(Testimonial.approved == 0).order_by(Testimonial.submitted_at.desc()).all()
     approved = db.query(Testimonial).filter(Testimonial.approved == 1).order_by(Testimonial.submitted_at.desc()).all()
 
@@ -480,6 +514,7 @@ async def admin_stats(request: Request, key: str = "", db: Session = Depends(get
         "pending_testimonials": pending,
         "approved_testimonials": approved,
         "admin_key": key,
+        "contacts": contacts,
     })
 
 

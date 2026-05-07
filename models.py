@@ -50,6 +50,16 @@ class Testimonial(Base):
     submitted_at = Column(DateTime, default=datetime.utcnow)
 
 
+class ContactMessage(Base):
+    __tablename__ = "contact_messages"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(120), nullable=False)
+    email = Column(String(254), nullable=False)
+    message = Column(String(3000), nullable=False)
+    submitted_at = Column(DateTime, default=datetime.utcnow)
+
+
 class Feedback(Base):
     __tablename__ = "feedback"
 

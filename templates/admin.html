@@ -153,6 +153,27 @@
   <p style="color:var(--text-muted);font-size:.875rem;">No feedback yet.</p>
   {% endif %}
 
+  <p class="section-title">Contact Messages ({{ contacts | length }})</p>
+  {% if contacts %}
+  <div class="table-card">
+    <table class="analytics-table">
+      <thead><tr><th>Date</th><th>Name</th><th>Email</th><th>Message</th></tr></thead>
+      <tbody>
+        {% for c in contacts %}
+        <tr>
+          <td style="white-space:nowrap;">{{ c.submitted_at.strftime('%d %b %Y') }}</td>
+          <td>{{ c.name }}</td>
+          <td><a href="mailto:{{ c.email }}" style="color:var(--primary);">{{ c.email }}</a></td>
+          <td style="color:var(--text);">{{ c.message }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p style="color:var(--text-muted);font-size:.875rem;margin-bottom:24px;">No contact messages yet.</p>
+  {% endif %}
+
   <p style="text-align:center; margin-top:24px;"><a href="/" style="color:var(--primary);">← Back to Forge QR</a></p>
 </main>
 </body>
