@@ -798,6 +798,123 @@
   </div>
 </section>
 
+<!-- ── Testimonials ── -->
+<section style="background:#f8fafc;border-top:1px solid var(--border);padding:56px 24px;">
+  <div style="max-width:900px;margin:0 auto;">
+    <div style="text-align:center;margin-bottom:36px;">
+      <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#0d9488;margin-bottom:8px;">From our community</div>
+      <h2 style="font-size:1.35rem;font-weight:700;color:var(--text);margin:0 0 10px;">How people use Forge QR</h2>
+      <p style="font-size:.9rem;color:var(--text-muted);max-width:480px;margin:0 auto;">Real stories from marketers, business owners, and creators who use Forge QR every day.</p>
+    </div>
+
+    {% if testimonials %}
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;margin-bottom:36px;">
+      {% for t in testimonials %}
+      <div style="background:#fff;border-radius:14px;padding:24px;box-shadow:0 1px 6px rgba(0,0,0,.07);display:flex;flex-direction:column;gap:12px;">
+        <div style="color:#0d9488;font-size:1.5rem;line-height:1;">"</div>
+        <p style="font-size:.875rem;color:var(--text);line-height:1.7;margin:0;flex:1;">{{ t.message }}</p>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+          <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0f766e,#6366f1);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.85rem;flex-shrink:0;">
+            {{ (t.name or 'A')[0].upper() }}
+          </div>
+          <div>
+            <div style="font-size:.85rem;font-weight:600;color:var(--text);">{{ t.name or 'Anonymous' }}</div>
+            {% if t.use_case %}<div style="font-size:.75rem;color:var(--text-muted);">{{ t.use_case }}</div>{% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Share story CTA -->
+    <div style="text-align:center;">
+      <p style="font-size:.875rem;color:var(--text-muted);margin-bottom:14px;">Used Forge QR for something cool? We'd love to feature your story.</p>
+      <button id="open-story-modal" style="background:#0f766e;color:#fff;border:none;border-radius:10px;padding:11px 24px;font-size:.9rem;font-weight:600;cursor:pointer;transition:background .2s;">✍️ Share your story</button>
+    </div>
+  </div>
+</section>
+
+<!-- Share story modal -->
+<div id="story-overlay" style="display:none;position:fixed;inset:0;z-index:1002;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:24px;">
+  <div style="background:#fff;border-radius:16px;padding:28px;width:100%;max-width:420px;box-shadow:0 8px 32px rgba(0,0,0,.2);">
+    <h3 style="margin:0 0 4px;font-size:1.05rem;font-weight:700;color:var(--text);">Share your story</h3>
+    <p style="font-size:.8rem;color:var(--text-muted);margin:0 0 20px;">If approved, your story will appear on this page. All fields optional except your message.</p>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:.8rem;font-weight:600;color:var(--text);display:block;margin-bottom:4px;">Your name or alias</label>
+      <input id="story-name" type="text" placeholder="e.g. Marco, or 'A restaurant owner'" style="width:100%;box-sizing:border-box;border:1.5px solid #e2e8f0;border-radius:8px;padding:9px 12px;font-size:.875rem;font-family:inherit;outline:none;">
+    </div>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:.8rem;font-weight:600;color:var(--text);display:block;margin-bottom:4px;">How did you use it?</label>
+      <select id="story-usecase" style="width:100%;box-sizing:border-box;border:1.5px solid #e2e8f0;border-radius:8px;padding:9px 12px;font-size:.875rem;font-family:inherit;outline:none;background:#fff;">
+        <option value="">Select a use case…</option>
+        <option>Restaurant menu</option>
+        <option>Business card</option>
+        <option>Event poster</option>
+        <option>Product packaging</option>
+        <option>App download campaign</option>
+        <option>Real estate listing</option>
+        <option>Marketing campaign</option>
+        <option>Personal project</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div style="margin-bottom:16px;">
+      <label style="font-size:.8rem;font-weight:600;color:var(--text);display:block;margin-bottom:4px;">Your story <span style="color:#dc2626;">*</span></label>
+      <textarea id="story-message" rows="4" placeholder="Tell us what you made and how it went…" style="width:100%;box-sizing:border-box;border:1.5px solid #e2e8f0;border-radius:8px;padding:9px 12px;font-size:.875rem;font-family:inherit;resize:vertical;outline:none;"></textarea>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button id="story-submit" style="flex:1;background:#0f766e;color:#fff;border:none;border-radius:8px;padding:10px;font-size:.875rem;font-weight:600;cursor:pointer;">Submit</button>
+      <button id="story-cancel" style="background:#f1f5f9;color:#64748b;border:none;border-radius:8px;padding:10px 14px;font-size:.875rem;cursor:pointer;">Cancel</button>
+    </div>
+    <div id="story-thanks" style="display:none;text-align:center;padding:8px 0;">
+      <div style="font-size:2rem;margin-bottom:8px;">🎉</div>
+      <p style="font-size:.875rem;color:var(--text-muted);margin:0;">Thanks! We'll review your story and feature it here soon.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Feedback nudge -->
+<div style="background:#fff;border-top:1px solid var(--border);padding:20px 24px;text-align:center;">
+  <p style="font-size:.85rem;color:var(--text-muted);margin:0;">
+    💬 Got ideas, suggestions, or found something off?
+    <strong style="color:var(--text);">We'd love to hear from you</strong> — hit the <strong>Feedback</strong> button in the bottom-right corner.
+  </p>
+</div>
+
+<script>
+const storyOverlay = document.getElementById('story-overlay');
+document.getElementById('open-story-modal').addEventListener('click', () => { storyOverlay.style.display = 'flex'; });
+document.getElementById('story-cancel').addEventListener('click', closeStory);
+storyOverlay.addEventListener('click', e => { if (e.target === storyOverlay) closeStory(); });
+document.getElementById('story-submit').addEventListener('click', async () => {
+  const msg = document.getElementById('story-message').value.trim();
+  if (!msg) { document.getElementById('story-message').focus(); return; }
+  const btn = document.getElementById('story-submit');
+  btn.disabled = true; btn.textContent = 'Sending…';
+  const fd = new FormData();
+  fd.append('message', msg);
+  fd.append('name', document.getElementById('story-name').value.trim());
+  fd.append('use_case', document.getElementById('story-usecase').value);
+  try { await fetch('/api/testimonial', { method: 'POST', body: fd }); } catch(e) {}
+  document.querySelector('#story-overlay > div > *:not(#story-thanks)').style.display = 'none';
+  document.getElementById('story-thanks').style.display = 'block';
+  setTimeout(closeStory, 2500);
+});
+function closeStory() {
+  storyOverlay.style.display = 'none';
+  setTimeout(() => {
+    document.querySelectorAll('#story-overlay > div > *').forEach(el => el.style.display = '');
+    document.getElementById('story-thanks').style.display = 'none';
+    document.getElementById('story-name').value = '';
+    document.getElementById('story-usecase').value = '';
+    document.getElementById('story-message').value = '';
+    document.getElementById('story-submit').disabled = false;
+    document.getElementById('story-submit').textContent = 'Submit';
+  }, 300);
+}
+</script>
+
 <footer>
   <p>Forge QR &mdash; Free QR code generator &mdash; No account required</p>
   <p style="margin:6px 0;"><a href="/guide" style="color:#94a3b8;font-size:.85rem;text-decoration:none;">📖 QR Code Marketing Guide</a></p>

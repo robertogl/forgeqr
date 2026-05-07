@@ -39,6 +39,17 @@ class QRScan(Base):
     browser = Column(String(64), nullable=True)
 
 
+class Testimonial(Base):
+    __tablename__ = "testimonials"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(80), nullable=True)       # display name or alias
+    use_case = Column(String(80), nullable=True)   # e.g. "Restaurant menu"
+    message = Column(String(1000), nullable=False)
+    approved = Column(Integer, default=0)          # 0=pending, 1=approved
+    submitted_at = Column(DateTime, default=datetime.utcnow)
+
+
 class Feedback(Base):
     __tablename__ = "feedback"
 

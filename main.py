@@ -27,7 +27,7 @@ from qrcode.image.styles.moduledrawers.pil import (
 from sqlalchemy.orm import Session
 
 from database import get_db, init_db
-from models import AppRedirect, DynamicQR, Feedback, PageVisit, QRScan, SiteStats
+from models import AppRedirect, DynamicQR, Feedback, PageVisit, QRScan, SiteStats, Testimonial
 
 load_dotenv()
 
@@ -363,7 +363,50 @@ async def index(request: Request, db: Session = Depends(get_db)):
     stats.visitor_count += 1
     db.add(PageVisit())
     db.commit()
-    return templates.TemplateResponse("index.html", {"request": request, "visitor_count": stats.visitor_count})
+    testimonials = db.query(Testimonial).filter(Testimonial.approved == 1).order_by(Testimonial.submitted_at.desc()).all()
+    return templates.TemplateResponse("index.html", {"request": request, "visitor_count": stats.visitor_count, "testimonials": testimonials})
+
+
+@app.post("/api/testimonial")
+async def submit_testimonial(
+    message: str = Form(...),
+    name: str = Form(""),
+    use_case: str = Form(""),
+    db: Session = Depends(get_db),
+):
+    if not message.strip():
+        raise HTTPException(status_code=400, detail="Message cannot be empty")
+    db.add(Testimonial(
+        message=message.strip()[:1000],
+        name=name.strip()[:80] or None,
+        use_case=use_case.strip()[:80] or None,
+        approved=0,
+    ))
+    db.commit()
+    return {"success": True}
+
+
+@app.get("/admin/testimonial/{tid}/approve")
+async def approve_testimonial(tid: int, key: str = "", db: Session = Depends(get_db)):
+    if ADMIN_KEY and key != ADMIN_KEY:
+        raise HTTPException(status_code=403, detail="Invalid key")
+    t = db.query(Testimonial).filter(Testimonial.id == tid).first()
+    if not t:
+        raise HTTPException(status_code=404, detail="Not found")
+    t.approved = 1
+    db.commit()
+    return RedirectResponse(url=f"/admin?key={key}", status_code=302)
+
+
+@app.get("/admin/testimonial/{tid}/delete")
+async def delete_testimonial(tid: int, key: str = "", db: Session = Depends(get_db)):
+    if ADMIN_KEY and key != ADMIN_KEY:
+        raise HTTPException(status_code=403, detail="Invalid key")
+    t = db.query(Testimonial).filter(Testimonial.id == tid).first()
+    if t:
+        db.delete(t)
+        db.commit()
+    return RedirectResponse(url=f"/admin?key={key}", status_code=302)
 
 
 @app.post("/api/feedback")
@@ -422,6 +465,8 @@ async def admin_stats(request: Request, key: str = "", db: Session = Depends(get
     qr_total = db.query(func.count(DynamicQR.short_code)).scalar()
     qr_scans = db.query(func.sum(DynamicQR.scan_count)).scalar() or 0
     feedback = db.query(Feedback).order_by(Feedback.submitted_at.desc()).limit(50).all()
+    pending = db.query(Testimonial).filter(Testimonial.approved == 0).order_by(Testimonial.submitted_at.desc()).all()
+    approved = db.query(Testimonial).filter(Testimonial.approved == 1).order_by(Testimonial.submitted_at.desc()).all()
 
     return templates.TemplateResponse("admin.html", {
         "request": request,
@@ -432,6 +477,9 @@ async def admin_stats(request: Request, key: str = "", db: Session = Depends(get
         "qr_total": qr_total,
         "qr_scans": qr_scans,
         "feedback": feedback,
+        "pending_testimonials": pending,
+        "approved_testimonials": approved,
+        "admin_key": key,
     })
 
 
