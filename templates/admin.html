@@ -107,6 +107,27 @@
     </table>
   </div>
 
+  <p class="section-title">User Feedback ({{ feedback | length }})</p>
+  {% if feedback %}
+  <div class="table-card">
+    <table class="analytics-table">
+      <thead><tr><th>Date</th><th>Rating</th><th>Page</th><th>Message</th></tr></thead>
+      <tbody>
+        {% for f in feedback %}
+        <tr>
+          <td style="white-space:nowrap;">{{ f.submitted_at.strftime('%d %b %Y') }}</td>
+          <td>{% if f.rating %}{{ '★' * f.rating }}{% else %}—{% endif %}</td>
+          <td>{{ f.page or '—' }}</td>
+          <td style="color:var(--text);">{{ f.message }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p style="color:var(--text-muted);font-size:.875rem;">No feedback yet.</p>
+  {% endif %}
+
   <p style="text-align:center; margin-top:24px;"><a href="/" style="color:var(--primary);">← Back to Forge QR</a></p>
 </main>
 </body>

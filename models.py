@@ -39,6 +39,16 @@ class QRScan(Base):
     browser = Column(String(64), nullable=True)
 
 
+class Feedback(Base):
+    __tablename__ = "feedback"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    rating = Column(Integer, nullable=True)   # 1-5 stars, optional
+    message = Column(String(2000), nullable=False)
+    page = Column(String(64), nullable=True)  # e.g. 'home', 'guide', 'manage'
+    submitted_at = Column(DateTime, default=datetime.utcnow)
+
+
 class SiteStats(Base):
     __tablename__ = "site_stats"
 

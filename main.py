@@ -27,7 +27,7 @@ from qrcode.image.styles.moduledrawers.pil import (
 from sqlalchemy.orm import Session
 
 from database import get_db, init_db
-from models import AppRedirect, DynamicQR, PageVisit, QRScan, SiteStats
+from models import AppRedirect, DynamicQR, Feedback, PageVisit, QRScan, SiteStats
 
 load_dotenv()
 
@@ -366,6 +366,24 @@ async def index(request: Request, db: Session = Depends(get_db)):
     return templates.TemplateResponse("index.html", {"request": request, "visitor_count": stats.visitor_count})
 
 
+@app.post("/api/feedback")
+async def submit_feedback(
+    message: str = Form(...),
+    rating: int = Form(None),
+    page: str = Form(""),
+    db: Session = Depends(get_db),
+):
+    if not message.strip():
+        raise HTTPException(status_code=400, detail="Message cannot be empty")
+    db.add(Feedback(
+        message=message.strip()[:2000],
+        rating=rating if rating and 1 <= rating <= 5 else None,
+        page=page.strip()[:64] or None,
+    ))
+    db.commit()
+    return {"success": True}
+
+
 @app.get("/guide")
 async def guide(request: Request):
     return templates.TemplateResponse("guide.html", {"request": request})
@@ -403,6 +421,7 @@ async def admin_stats(request: Request, key: str = "", db: Session = Depends(get
 
     qr_total = db.query(func.count(DynamicQR.short_code)).scalar()
     qr_scans = db.query(func.sum(DynamicQR.scan_count)).scalar() or 0
+    feedback = db.query(Feedback).order_by(Feedback.submitted_at.desc()).limit(50).all()
 
     return templates.TemplateResponse("admin.html", {
         "request": request,
@@ -412,6 +431,7 @@ async def admin_stats(request: Request, key: str = "", db: Session = Depends(get
         "by_year": by_year,
         "qr_total": qr_total,
         "qr_scans": qr_scans,
+        "feedback": feedback,
     })
 
 

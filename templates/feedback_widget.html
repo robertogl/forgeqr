@@ -1,0 +1,141 @@
+<!-- Feedback widget — include at end of <body> on every page -->
+<style>
+  #fb-btn {
+    position: fixed; bottom: 24px; right: 24px; z-index: 1000;
+    background: #0f766e; color: #fff; border: none; border-radius: 24px;
+    padding: 10px 18px; font-size: .875rem; font-weight: 600;
+    cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.2);
+    display: flex; align-items: center; gap: 7px; transition: background .2s;
+  }
+  #fb-btn:hover { background: #0d9488; }
+  #fb-overlay {
+    display: none; position: fixed; inset: 0; z-index: 1001;
+    background: rgba(0,0,0,.45); align-items: flex-end; justify-content: flex-end;
+    padding: 24px;
+  }
+  #fb-overlay.open { display: flex; }
+  #fb-modal {
+    background: #fff; border-radius: 16px; padding: 24px;
+    width: 100%; max-width: 360px; box-shadow: 0 8px 32px rgba(0,0,0,.18);
+    animation: fb-in .18s ease;
+  }
+  @keyframes fb-in { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+  #fb-modal h3 { font-size: 1rem; font-weight: 700; margin: 0 0 4px; color: #1e293b; }
+  #fb-modal p { font-size: .8rem; color: #64748b; margin: 0 0 16px; }
+  .fb-stars { display: flex; gap: 6px; margin-bottom: 14px; }
+  .fb-stars button {
+    background: none; border: none; font-size: 1.5rem; cursor: pointer;
+    color: #d1d5db; padding: 0; transition: color .15s;
+  }
+  .fb-stars button.active { color: #f59e0b; }
+  #fb-message {
+    width: 100%; box-sizing: border-box; border: 1.5px solid #e2e8f0;
+    border-radius: 8px; padding: 10px 12px; font-size: .875rem;
+    font-family: inherit; resize: vertical; min-height: 90px;
+    outline: none; transition: border-color .2s;
+  }
+  #fb-message:focus { border-color: #0d9488; }
+  .fb-actions { display: flex; gap: 8px; margin-top: 12px; }
+  #fb-submit {
+    flex: 1; background: #0f766e; color: #fff; border: none;
+    border-radius: 8px; padding: 10px; font-size: .875rem;
+    font-weight: 600; cursor: pointer; transition: background .2s;
+  }
+  #fb-submit:hover { background: #0d9488; }
+  #fb-cancel {
+    background: #f1f5f9; color: #64748b; border: none;
+    border-radius: 8px; padding: 10px 14px; font-size: .875rem;
+    cursor: pointer;
+  }
+  #fb-thanks { display:none; text-align:center; padding: 8px 0 4px; }
+  #fb-thanks .fb-big { font-size: 2rem; margin-bottom: 8px; }
+  #fb-thanks p { font-size: .875rem; color: #64748b; margin: 0; }
+</style>
+
+<button id="fb-btn">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  Feedback
+</button>
+
+<div id="fb-overlay">
+  <div id="fb-modal">
+    <div id="fb-form-view">
+      <h3>Share your feedback</h3>
+      <p>Help us improve Forge QR — takes 30 seconds.</p>
+
+      <div class="fb-stars" id="fb-stars">
+        <button data-v="1" title="Poor">★</button>
+        <button data-v="2" title="Fair">★</button>
+        <button data-v="3" title="Good">★</button>
+        <button data-v="4" title="Great">★</button>
+        <button data-v="5" title="Excellent">★</button>
+      </div>
+
+      <textarea id="fb-message" placeholder="What could be better? Any features you'd love to see?"></textarea>
+
+      <div class="fb-actions">
+        <button id="fb-submit">Send feedback</button>
+        <button id="fb-cancel">Cancel</button>
+      </div>
+    </div>
+    <div id="fb-thanks">
+      <div class="fb-big">🙏</div>
+      <h3 style="margin:0 0 6px;color:#1e293b;">Thank you!</h3>
+      <p>Your feedback helps us make Forge QR better for everyone.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const btn = document.getElementById('fb-btn');
+  const overlay = document.getElementById('fb-overlay');
+  const cancel = document.getElementById('fb-cancel');
+  const submit = document.getElementById('fb-submit');
+  const stars = document.querySelectorAll('#fb-stars button');
+  let rating = 0;
+
+  btn.addEventListener('click', () => overlay.classList.add('open'));
+  cancel.addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+
+  stars.forEach(s => {
+    s.addEventListener('mouseenter', () => highlight(+s.dataset.v));
+    s.addEventListener('mouseleave', () => highlight(rating));
+    s.addEventListener('click', () => { rating = +s.dataset.v; highlight(rating); });
+  });
+
+  function highlight(v) {
+    stars.forEach(s => s.classList.toggle('active', +s.dataset.v <= v));
+  }
+
+  submit.addEventListener('click', async () => {
+    const msg = document.getElementById('fb-message').value.trim();
+    if (!msg) { document.getElementById('fb-message').focus(); return; }
+    submit.disabled = true;
+    submit.textContent = 'Sending…';
+    const fd = new FormData();
+    fd.append('message', msg);
+    if (rating) fd.append('rating', rating);
+    fd.append('page', window.location.pathname.replace('/', '') || 'home');
+    try {
+      await fetch('/api/feedback', { method: 'POST', body: fd });
+    } catch(e) {}
+    document.getElementById('fb-form-view').style.display = 'none';
+    document.getElementById('fb-thanks').style.display = 'block';
+    setTimeout(close, 2200);
+  });
+
+  function close() {
+    overlay.classList.remove('open');
+    setTimeout(() => {
+      document.getElementById('fb-form-view').style.display = 'block';
+      document.getElementById('fb-thanks').style.display = 'none';
+      document.getElementById('fb-message').value = '';
+      rating = 0; highlight(0);
+      submit.disabled = false;
+      submit.textContent = 'Send feedback';
+    }, 300);
+  }
+})();
+</script>
