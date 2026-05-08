@@ -513,7 +513,7 @@ async def generate_ai_qr(request: Request, url: str = Form(...), prompt: str = F
         )
 
     if resp.status_code != 200:
-        raise HTTPException(status_code=502, detail="Image generation failed — try again")
+        raise HTTPException(status_code=502, detail=f"Gemini error {resp.status_code}: {resp.text[:300]}")
 
     image_b64 = None
     for part in resp.json().get("candidates", [{}])[0].get("content", {}).get("parts", []):
