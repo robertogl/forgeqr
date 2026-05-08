@@ -327,6 +327,7 @@ def build_qr_image(
 
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+HF_TOKEN = os.getenv("HF_TOKEN", "")
 _ai_qr_cooldown: dict = {}  # ip → timestamp
 
 # ── Pages ────────────────────────────────────────────────────────────────────
@@ -485,7 +486,7 @@ async def guide(request: Request):
 
 @app.post("/api/ai-qr")
 async def generate_ai_qr(request: Request, url: str = Form(...), prompt: str = Form(...)):
-    if not GEMINI_API_KEY:
+    if not HF_TOKEN:
         raise HTTPException(status_code=503, detail="AI QR not configured")
 
     from datetime import datetime as _dt
@@ -502,26 +503,20 @@ async def generate_ai_qr(request: Request, url: str = Form(...), prompt: str = F
     qr_img = qr.make_image(fill_color="black", back_color="white").convert("L")
     size = qr_img.size[0]
 
-    # Call Imagen 4 Fast (25 free requests/day)
-    async with httpx.AsyncClient(timeout=90.0) as client:
+    # Call HuggingFace Inference API — FLUX.1-schnell
+    async with httpx.AsyncClient(timeout=120.0) as client:
         resp = await client.post(
-            f"https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-fast-generate-001:predict?key={GEMINI_API_KEY}",
-            json={
-                "instances": [{"prompt": f"Square format artistic image, vibrant colors, highly detailed: {prompt.strip()}"}],
-                "parameters": {"sampleCount": 1, "aspectRatio": "1:1"},
-            },
+            "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell",
+            headers={"Authorization": f"Bearer {HF_TOKEN}"},
+            json={"inputs": f"Square format, vibrant colors, highly detailed: {prompt.strip()}"},
         )
 
+    if resp.status_code == 503:
+        raise HTTPException(status_code=502, detail="Model is loading — please wait 30 seconds and try again")
     if resp.status_code != 200:
-        raise HTTPException(status_code=502, detail=f"Imagen error {resp.status_code}: {resp.text[:300]}")
+        raise HTTPException(status_code=502, detail=f"HF error {resp.status_code}: {resp.text[:300]}")
 
-    predictions = resp.json().get("predictions", [])
-    if not predictions:
-        raise HTTPException(status_code=502, detail="No image returned — try a different prompt")
-
-    image_b64 = predictions[0].get("bytesBase64Encoded")
-
-    ai_img = Image.open(io.BytesIO(base64.b64decode(image_b64))).convert("RGB").resize((size, size), Image.LANCZOS)
+    ai_img = Image.open(io.BytesIO(resp.content)).convert("RGB").resize((size, size), Image.LANCZOS)
 
     # Composite: dark QR modules stay black, light areas show AI image
     black = Image.new("RGB", (size, size), (0, 0, 0))
