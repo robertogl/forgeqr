@@ -326,6 +326,9 @@ def build_qr_image(
     return buf.read()
 
 
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+_ai_qr_cooldown: dict = {}  # ip → timestamp
+
 # ── Pages ────────────────────────────────────────────────────────────────────
 
 ADMIN_KEY = os.getenv("ADMIN_KEY", "")
@@ -478,6 +481,60 @@ async def privacy(request: Request):
 @app.get("/guide")
 async def guide(request: Request):
     return templates.TemplateResponse("guide.html", {"request": request})
+
+
+@app.post("/api/ai-qr")
+async def generate_ai_qr(request: Request, url: str = Form(...), prompt: str = Form(...)):
+    if not GEMINI_API_KEY:
+        raise HTTPException(status_code=503, detail="AI QR not configured")
+
+    from datetime import datetime as _dt
+    client_ip = request.client.host
+    now = _dt.now().timestamp()
+    if now - _ai_qr_cooldown.get(client_ip, 0) < 35:
+        raise HTTPException(status_code=429, detail="Please wait 35 seconds between generations")
+    _ai_qr_cooldown[client_ip] = now
+
+    # Generate plain black/white QR at high error correction so compositing doesn't break scanning
+    qr = qrcode.QRCode(version=None, error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=12, border=4)
+    qr.add_data(url.strip())
+    qr.make(fit=True)
+    qr_img = qr.make_image(fill_color="black", back_color="white").convert("L")
+    size = qr_img.size[0]
+
+    # Call Gemini image generation
+    async with httpx.AsyncClient(timeout=90.0) as client:
+        resp = await client.post(
+            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent?key={GEMINI_API_KEY}",
+            json={
+                "contents": [{"parts": [{"text": f"Square format artistic image, vibrant colors, highly detailed: {prompt.strip()}"}]}],
+                "generationConfig": {"responseModalities": ["IMAGE"]},
+            },
+        )
+
+    if resp.status_code != 200:
+        raise HTTPException(status_code=502, detail="Image generation failed — try again")
+
+    image_b64 = None
+    for part in resp.json().get("candidates", [{}])[0].get("content", {}).get("parts", []):
+        if "inlineData" in part:
+            image_b64 = part["inlineData"]["data"]
+            break
+
+    if not image_b64:
+        raise HTTPException(status_code=502, detail="No image returned — try a different prompt")
+
+    ai_img = Image.open(io.BytesIO(base64.b64decode(image_b64))).convert("RGB").resize((size, size), Image.LANCZOS)
+
+    # Composite: dark QR modules stay black, light areas show AI image
+    black = Image.new("RGB", (size, size), (0, 0, 0))
+    light_mask = qr_img.point(lambda x: 255 if x > 128 else 0)
+    result = Image.composite(ai_img, black, light_mask)
+
+    buf = io.BytesIO()
+    result.save(buf, format="PNG")
+    buf.seek(0)
+    return Response(content=buf.read(), media_type="image/png")
 
 
 @app.get("/ai-qr")
