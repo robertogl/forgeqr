@@ -505,10 +505,10 @@ async def generate_ai_qr(request: Request, url: str = Form(...), prompt: str = F
     # Call Gemini image generation
     async with httpx.AsyncClient(timeout=90.0) as client:
         resp = await client.post(
-            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent?key={GEMINI_API_KEY}",
+            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-image-generation:generateContent?key={GEMINI_API_KEY}",
             json={
                 "contents": [{"parts": [{"text": f"Square format artistic image, vibrant colors, highly detailed: {prompt.strip()}"}]}],
-                "generationConfig": {"responseModalities": ["IMAGE"]},
+                "generationConfig": {"responseModalities": ["TEXT", "IMAGE"]},
             },
         )
 
