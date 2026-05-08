@@ -502,27 +502,24 @@ async def generate_ai_qr(request: Request, url: str = Form(...), prompt: str = F
     qr_img = qr.make_image(fill_color="black", back_color="white").convert("L")
     size = qr_img.size[0]
 
-    # Call Gemini image generation
+    # Call Imagen 4 Fast (25 free requests/day)
     async with httpx.AsyncClient(timeout=90.0) as client:
         resp = await client.post(
-            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key={GEMINI_API_KEY}",
+            f"https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-fast-generate-001:predict?key={GEMINI_API_KEY}",
             json={
-                "contents": [{"parts": [{"text": f"Square format artistic image, vibrant colors, highly detailed: {prompt.strip()}"}]}],
-                "generationConfig": {"responseModalities": ["TEXT", "IMAGE"]},
+                "instances": [{"prompt": f"Square format artistic image, vibrant colors, highly detailed: {prompt.strip()}"}],
+                "parameters": {"sampleCount": 1, "aspectRatio": "1:1"},
             },
         )
 
     if resp.status_code != 200:
-        raise HTTPException(status_code=502, detail=f"Gemini error {resp.status_code}: {resp.text[:300]}")
+        raise HTTPException(status_code=502, detail=f"Imagen error {resp.status_code}: {resp.text[:300]}")
 
-    image_b64 = None
-    for part in resp.json().get("candidates", [{}])[0].get("content", {}).get("parts", []):
-        if "inlineData" in part:
-            image_b64 = part["inlineData"]["data"]
-            break
-
-    if not image_b64:
+    predictions = resp.json().get("predictions", [])
+    if not predictions:
         raise HTTPException(status_code=502, detail="No image returned — try a different prompt")
+
+    image_b64 = predictions[0].get("bytesBase64Encoded")
 
     ai_img = Image.open(io.BytesIO(base64.b64decode(image_b64))).convert("RGB").resize((size, size), Image.LANCZOS)
 
