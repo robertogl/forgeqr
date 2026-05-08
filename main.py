@@ -486,42 +486,41 @@ async def guide(request: Request):
 
 @app.post("/api/ai-qr")
 async def generate_ai_qr(request: Request, url: str = Form(...), prompt: str = Form(...)):
-    if not HF_TOKEN:
-        raise HTTPException(status_code=503, detail="AI QR not configured")
-
     from datetime import datetime as _dt
+    from urllib.parse import quote
+    from PIL import ImageChops, ImageEnhance
+
     client_ip = request.client.host
     now = _dt.now().timestamp()
     if now - _ai_qr_cooldown.get(client_ip, 0) < 35:
         raise HTTPException(status_code=429, detail="Please wait 35 seconds between generations")
     _ai_qr_cooldown[client_ip] = now
 
-    # Generate plain black/white QR at high error correction so compositing doesn't break scanning
+    # Generate plain black/white QR at high error correction
     qr = qrcode.QRCode(version=None, error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=12, border=4)
     qr.add_data(url.strip())
     qr.make(fit=True)
     qr_img = qr.make_image(fill_color="black", back_color="white").convert("L")
     size = qr_img.size[0]
 
-    # Call HuggingFace Inference API — FLUX.1-schnell
-    async with httpx.AsyncClient(timeout=120.0) as client:
-        resp = await client.post(
-            "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell",
-            headers={"Authorization": f"Bearer {HF_TOKEN}"},
-            json={"inputs": f"Square format, vibrant colors, highly detailed: {prompt.strip()}"},
+    # Call Pollinations.ai — free, no API key needed
+    encoded_prompt = quote(f"square format, vibrant colors, highly detailed, artistic: {prompt.strip()}")
+    async with httpx.AsyncClient(timeout=60.0) as client:
+        resp = await client.get(
+            f"https://image.pollinations.ai/prompt/{encoded_prompt}?width={size}&height={size}&nologo=true&model=flux",
+            follow_redirects=True,
         )
 
-    if resp.status_code == 503:
-        raise HTTPException(status_code=502, detail="Model is loading — please wait 30 seconds and try again")
     if resp.status_code != 200:
-        raise HTTPException(status_code=502, detail=f"HF error {resp.status_code}: {resp.text[:300]}")
+        raise HTTPException(status_code=502, detail=f"Image generation failed — try again")
 
     ai_img = Image.open(io.BytesIO(resp.content)).convert("RGB").resize((size, size), Image.LANCZOS)
 
-    # Composite: dark QR modules stay black, light areas show AI image
-    black = Image.new("RGB", (size, size), (0, 0, 0))
-    light_mask = qr_img.point(lambda x: 255 if x > 128 else 0)
-    result = Image.composite(ai_img, black, light_mask)
+    # Multiply blend: QR pattern darkens the AI image naturally
+    qr_rgb = Image.merge("RGB", [qr_img, qr_img, qr_img])
+    result = ImageChops.multiply(ai_img, qr_rgb)
+    # Boost contrast so dark modules are truly dark and scannable
+    result = ImageEnhance.Contrast(result).enhance(1.4)
 
     buf = io.BytesIO()
     result.save(buf, format="PNG")
