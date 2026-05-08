@@ -496,31 +496,36 @@ async def generate_ai_qr(request: Request, url: str = Form(...), prompt: str = F
         raise HTTPException(status_code=429, detail="Please wait 35 seconds between generations")
     _ai_qr_cooldown[client_ip] = now
 
-    # Generate plain black/white QR at high error correction
-    qr = qrcode.QRCode(version=None, error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=12, border=4)
-    qr.add_data(url.strip())
-    qr.make(fit=True)
-    qr_img = qr.make_image(fill_color="black", back_color="white").convert("L")
-    size = qr_img.size[0]
-
-    # Call Pollinations.ai — free, no API key needed
-    encoded_prompt = quote(f"square format, vibrant colors, highly detailed, artistic: {prompt.strip()}")
+    # Generate AI background at 1024x1024
+    encoded_prompt = quote(f"square format, vibrant colors, highly detailed, artistic, no text: {prompt.strip()}")
     async with httpx.AsyncClient(timeout=60.0) as client:
         resp = await client.get(
-            f"https://image.pollinations.ai/prompt/{encoded_prompt}?width={size}&height={size}&nologo=true&model=flux",
+            f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=1024&nologo=true&model=flux",
             follow_redirects=True,
         )
 
     if resp.status_code != 200:
-        raise HTTPException(status_code=502, detail=f"Image generation failed — try again")
+        raise HTTPException(status_code=502, detail="Image generation failed — try again")
 
-    ai_img = Image.open(io.BytesIO(resp.content)).convert("RGB").resize((size, size), Image.LANCZOS)
+    background = Image.open(io.BytesIO(resp.content)).convert("RGBA")
 
-    # Start with clean black/white QR — guaranteed scannable baseline
-    qr_bw = Image.merge("RGB", [qr_img.point(lambda x: 255 if x > 128 else 0)] * 3)
+    # Generate clean QR code at ~22% of canvas size
+    qr = qrcode.QRCode(version=None, error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=8, border=3)
+    qr.add_data(url.strip())
+    qr.make(fit=True)
+    qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGBA")
 
-    # Blend AI image on top at 45% opacity — artistic but QR stays readable
-    result = Image.blend(qr_bw, ai_img, 0.45)
+    # Scale QR to ~220px and add white padding for contrast
+    qr_img = qr_img.resize((220, 220), Image.LANCZOS)
+    pad = 10
+    padded = Image.new("RGBA", (qr_img.width + pad * 2, qr_img.height + pad * 2), (255, 255, 255, 240))
+    padded.paste(qr_img, (pad, pad))
+
+    # Paste QR in bottom-right corner with 20px margin
+    margin = 20
+    pos = (background.width - padded.width - margin, background.height - padded.height - margin)
+    background.paste(padded, pos, padded)
+    result = background.convert("RGB")
 
     buf = io.BytesIO()
     result.save(buf, format="PNG")
