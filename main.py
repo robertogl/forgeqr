@@ -516,11 +516,15 @@ async def generate_ai_qr(request: Request, url: str = Form(...), prompt: str = F
 
     ai_img = Image.open(io.BytesIO(resp.content)).convert("RGB").resize((size, size), Image.LANCZOS)
 
-    # Multiply blend: QR pattern darkens the AI image naturally
-    qr_rgb = Image.merge("RGB", [qr_img, qr_img, qr_img])
-    result = ImageChops.multiply(ai_img, qr_rgb)
-    # Boost contrast so dark modules are truly dark and scannable
-    result = ImageEnhance.Contrast(result).enhance(1.4)
+    # Binary mask: 255 = light module, 0 = dark module
+    light_mask = qr_img.point(lambda x: 255 if x > 128 else 0)
+
+    # Light areas: slightly brightened AI image
+    bright = ImageEnhance.Brightness(ai_img).enhance(1.2)
+    # Dark areas: very dark tint of the AI image (keeps a hint of colour)
+    dark = ImageEnhance.Brightness(ai_img).enhance(0.12)
+
+    result = Image.composite(bright, dark, light_mask)
 
     buf = io.BytesIO()
     result.save(buf, format="PNG")
