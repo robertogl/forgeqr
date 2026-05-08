@@ -497,7 +497,7 @@ async def generate_ai_qr(request: Request, url: str = Form(...), prompt: str = F
     _ai_qr_cooldown[client_ip] = now
 
     # Generate AI background at 1024x1024
-    encoded_prompt = quote(f"square format, vibrant colors, highly detailed, artistic, no text: {prompt.strip()}")
+    encoded_prompt = quote(f"square format, dark rich colors, deep contrast, highly detailed, dramatic lighting, artistic, no text: {prompt.strip()}")
     async with httpx.AsyncClient(timeout=60.0) as client:
         resp = await client.get(
             f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=1024&nologo=true&model=flux",
@@ -507,7 +507,10 @@ async def generate_ai_qr(request: Request, url: str = Form(...), prompt: str = F
     if resp.status_code != 200:
         raise HTTPException(status_code=502, detail="Image generation failed — try again")
 
-    background = Image.open(io.BytesIO(resp.content)).convert("RGBA")
+    background = Image.open(io.BytesIO(resp.content)).convert("RGB")
+    background = ImageEnhance.Contrast(background).enhance(1.3)
+    background = ImageEnhance.Color(background).enhance(1.4)
+    background = background.convert("RGBA")
 
     # Generate clean QR code at ~22% of canvas size
     qr = qrcode.QRCode(version=None, error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=8, border=3)
