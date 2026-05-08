@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Art QR Code Generator — Forge QR</title>
+  <meta name="description" content="Generate stunning AI-art QR codes for free. Enter a prompt and a URL to create a scannable QR code that looks like a painting or illustration.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://forgeqrcode.com/ai-qr">
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('consent','default',{analytics_storage:'denied',ad_storage:'denied',wait_for_update:500});</script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-HWR5941KV2"></script>
+  <script>gtag('js',new Date());gtag('config','G-HWR5941KV2');</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5198883341858973" crossorigin="anonymous"></script>
+  <link rel="icon" type="image/png" href="/static/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    .ai-hero { background: linear-gradient(135deg,#1e293b,#334155); color:#fff; padding:48px 24px; text-align:center; }
+    .ai-hero h1 { font-size:1.9rem; margin:0 0 10px; }
+    .ai-hero p { color:#cbd5e1; font-size:.95rem; max-width:520px; margin:0 auto; line-height:1.7; }
+    .ai-badge { display:inline-block; background:#0d9488; color:#fff; font-size:.72rem; font-weight:700; padding:3px 10px; border-radius:99px; letter-spacing:.04em; margin-bottom:14px; }
+    .ai-body { max-width:900px; margin:0 auto; padding:36px 24px 64px; }
+    .ai-note { background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:10px; padding:14px 18px; font-size:.82rem; color:#64748b; margin-bottom:28px; line-height:1.6; }
+    .ai-note strong { color:#334155; }
+    .iframe-wrap { border-radius:14px; overflow:hidden; border:1.5px solid #e2e8f0; box-shadow:0 4px 24px rgba(0,0,0,.08); background:#f1f5f9; }
+    .iframe-wrap iframe { display:block; width:100%; height:780px; border:none; }
+  </style>
+</head>
+<body>
+
+<div class="ai-hero">
+  <div class="ai-badge">✨ Powered by AI</div>
+  <h1>AI Art QR Code Generator</h1>
+  <p>Type a prompt and a URL — get back a scannable QR code that looks like a piece of art. Powered by Stable Diffusion + ControlNet.</p>
+</div>
+
+<div class="ai-body">
+
+  <div class="ai-note">
+    <strong>How it works:</strong> Enter your destination URL and a creative prompt (e.g. "a misty Japanese forest at dawn"). The AI generates an image conditioned on the QR structure, so the result is both beautiful and fully scannable. Generation takes 20–60 seconds.
+  </div>
+
+  <div class="iframe-wrap">
+    <iframe
+      src="https://huggingface-projects-qr-code-ai-art-generator.hf.space"
+      allow="accelerometer; camera; microphone; clipboard-read; clipboard-write"
+      loading="lazy"
+    ></iframe>
+  </div>
+
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:28px;">
+    <a href="/" style="padding:10px 22px;border-radius:9px;font-size:.875rem;font-weight:600;text-decoration:none;background:var(--primary);color:#fff;">← Standard QR Generator</a>
+    <a href="/guide" style="padding:10px 22px;border-radius:9px;font-size:.875rem;font-weight:600;text-decoration:none;background:#f1f5f9;color:var(--text);">📖 Marketing Guide</a>
+  </div>
+
+</div>
+
+<footer>
+  <p>Forge QR &mdash; Free QR code generator &mdash; No account required</p>
+  <p style="margin:8px 0;display:flex;flex-wrap:wrap;justify-content:center;gap:16px;">
+    <a href="/ai-qr" style="color:#94a3b8;font-size:.82rem;text-decoration:none;">✨ AI Art QR</a>
+    <a href="/guide" style="color:#94a3b8;font-size:.82rem;text-decoration:none;">📖 Marketing Guide</a>
+    <a href="/faq" style="color:#94a3b8;font-size:.82rem;text-decoration:none;">FAQ</a>
+    <a href="/about" style="color:#94a3b8;font-size:.82rem;text-decoration:none;">About</a>
+    <a href="/contact" style="color:#94a3b8;font-size:.82rem;text-decoration:none;">Contact</a>
+    <a href="/privacy" style="color:#94a3b8;font-size:.82rem;text-decoration:none;">Privacy Policy</a>
+  </p>
+</footer>
+
+{% include "feedback_widget.html" %}
+</body>
+</html>

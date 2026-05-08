@@ -480,6 +480,11 @@ async def guide(request: Request):
     return templates.TemplateResponse("guide.html", {"request": request})
 
 
+@app.get("/ai-qr")
+async def ai_qr(request: Request):
+    return templates.TemplateResponse("ai_qr.html", {"request": request})
+
+
 @app.get("/admin")
 async def admin_stats(request: Request, key: str = "", db: Session = Depends(get_db)):
     if ADMIN_KEY and key != ADMIN_KEY:
