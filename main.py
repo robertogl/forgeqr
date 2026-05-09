@@ -501,18 +501,12 @@ async def generate_ai_qr(request: Request, url: str = Form(...), prompt: str = F
     def _call_space():
         gc = GradioClient("huggingface-projects/QR-code-AI-art-generator")
         return gc.predict(
-            prompt.strip(),
-            url.strip(),
-            "ugly, disfigured, low quality, blurry, nsfw",
-            7.5,    # guidance_scale
-            1.5,    # controlnet_conditioning_scale
-            0.9,    # strength
-            None,   # init_image
-            None,   # qrcode_image
-            True,   # use_qr_code_as_init_image
-            "DPM++ Karras SDE",
-            -1,     # seed
-            api_name="/inference",
+            qr_code_content=url.strip(),
+            prompt=prompt.strip(),
+            negative_prompt="ugly, disfigured, low quality, blurry, nsfw",
+            guidance_scale=7.5,
+            controlnet_conditioning_scale=1.5,
+            api_name="/predict",
         )
 
     try:
