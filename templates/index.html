@@ -152,6 +152,7 @@
     <button class="tab-btn active" data-tab="static">⬛ Static QR</button>
     <button class="tab-btn" data-tab="dynamic">🔄 Dynamic QR</button>
     <button class="tab-btn" data-tab="app">📱 App Store QR</button>
+    <button class="tab-btn" data-tab="bulk">📊 Bulk QR</button>
   </div>
 
   <!-- ── STATIC TAB ── -->
@@ -802,7 +803,126 @@
     </div>
   </div>
 
+  <!-- ── BULK TAB ── -->
+  <div id="tab-bulk" class="tab-content">
+    <div class="tab-description">
+      <strong>Bulk QR codes</strong> let you generate many QR codes at once from a CSV or Excel file. Perfect for restaurant chains with multiple locations, marketing campaigns with personalized URLs, asset tagging, event tickets, or any case where you need lots of unique QR codes.
+      Upload a file with one URL per row, choose the visual style, and download a ZIP file containing all generated QR codes as PNGs.
+    </div>
+
+    <div class="qr-form">
+      <div style="background:#f0fdfa;border:1.5px solid #99f6e4;border-radius:10px;padding:16px 20px;margin-bottom:18px;font-size:.85rem;color:#0f766e;line-height:1.7;">
+        <strong style="display:block;margin-bottom:6px;">📄 File format</strong>
+        Your file should have <strong>one URL per row</strong>. Optionally include a second column with a label (used as the filename in the ZIP).
+        <br>
+        <strong>Example CSV:</strong>
+        <pre style="background:#fff;border:1px solid #ccfbf1;border-radius:6px;padding:8px 10px;margin:8px 0 0;font-size:.78rem;color:#134e4a;overflow-x:auto;">url,label
+https://example.com/london,London_Menu
+https://example.com/paris,Paris_Menu
+https://example.com/rome,Rome_Menu</pre>
+        Maximum <strong>200 QR codes per upload</strong>.
+      </div>
+
+      <div class="form-section">
+        <label class="form-label">Upload CSV or Excel file</label>
+        <input type="file" id="bulk-file" accept=".csv,.xlsx,.xlsm" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.875rem;font-family:inherit;background:#fff;cursor:pointer;">
+      </div>
+
+      <div class="form-section">
+        <label class="form-label">Foreground color</label>
+        <input type="color" id="bulk-fg" value="#000000" style="width:60px;height:40px;border:1.5px solid var(--border);border-radius:8px;padding:3px;cursor:pointer;">
+      </div>
+
+      <div class="form-section">
+        <label class="form-label">Background color</label>
+        <input type="color" id="bulk-bg" value="#FFFFFF" style="width:60px;height:40px;border:1.5px solid var(--border);border-radius:8px;padding:3px;cursor:pointer;">
+      </div>
+
+      <div class="form-section">
+        <label class="form-label">Dot style</label>
+        <select id="bulk-dot" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem;font-family:inherit;">
+          <option value="square">Square</option>
+          <option value="rounded">Rounded</option>
+          <option value="circle">Circle</option>
+          <option value="gapped">Gapped</option>
+          <option value="vertical">Vertical bars</option>
+          <option value="horizontal">Horizontal bars</option>
+        </select>
+      </div>
+
+      <div class="form-section">
+        <label class="form-label">Corner style</label>
+        <select id="bulk-eye" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem;font-family:inherit;">
+          <option value="square">Square</option>
+          <option value="rounded">Rounded</option>
+          <option value="circle">Circle</option>
+        </select>
+      </div>
+
+      <div class="form-section">
+        <label class="form-label">Container shape</label>
+        <select id="bulk-container" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem;font-family:inherit;">
+          <option value="square">Square</option>
+          <option value="rounded">Rounded</option>
+          <option value="circle">Circle</option>
+        </select>
+      </div>
+
+      <button id="bulk-generate" class="btn-primary" style="width:100%;margin-top:10px;">📊 Generate &amp; Download ZIP</button>
+      <div id="bulk-status" style="margin-top:12px;font-size:.85rem;display:none;padding:10px 14px;border-radius:8px;"></div>
+    </div>
+  </div>
+
 </main>
+
+<script>
+document.getElementById('bulk-generate').addEventListener('click', async () => {
+  const fileInput = document.getElementById('bulk-file');
+  const status = document.getElementById('bulk-status');
+  const btn = document.getElementById('bulk-generate');
+  if (!fileInput.files || !fileInput.files[0]) {
+    status.style.display = 'block';
+    status.style.background = '#fef2f2';
+    status.style.color = '#991b1b';
+    status.textContent = '❌ Please select a CSV or Excel file first.';
+    return;
+  }
+  const fd = new FormData();
+  fd.append('file', fileInput.files[0]);
+  fd.append('fg_color', document.getElementById('bulk-fg').value);
+  fd.append('bg_color', document.getElementById('bulk-bg').value);
+  fd.append('dot_style', document.getElementById('bulk-dot').value);
+  fd.append('eye_style', document.getElementById('bulk-eye').value);
+  fd.append('container_shape', document.getElementById('bulk-container').value);
+  btn.disabled = true; btn.textContent = 'Generating…';
+  status.style.display = 'block';
+  status.style.background = '#f0fdfa';
+  status.style.color = '#0f766e';
+  status.textContent = '⏳ Generating QR codes — this can take a moment…';
+  try {
+    const res = await fetch('/api/qr/bulk', { method: 'POST', body: fd });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || 'Bulk generation failed');
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'forge-qr-bulk.zip';
+    document.body.appendChild(a); a.click(); a.remove();
+    status.style.background = '#f0fdf4';
+    status.style.color = '#166534';
+    status.textContent = '✅ ZIP downloaded! Check your downloads folder.';
+  } catch (e) {
+    status.style.background = '#fef2f2';
+    status.style.color = '#991b1b';
+    status.textContent = '❌ ' + e.message;
+  } finally {
+    btn.disabled = false; btn.textContent = '📊 Generate & Download ZIP';
+  }
+});
+</script>
 
 <section style="background:var(--bg);border-top:1px solid var(--border);padding:56px 24px;">
   <div style="max-width:820px;margin:0 auto;">

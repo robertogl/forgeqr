@@ -843,6 +843,106 @@ async def create_static(
     return {"qr_image": f"data:image/png;base64,{base64.b64encode(img).decode()}"}
 
 
+# ── Bulk QR API ───────────────────────────────────────────────────────────────
+
+@app.post("/api/qr/bulk")
+async def create_bulk(
+    file: UploadFile = File(...),
+    fg_color: str = Form("#000000"),
+    bg_color: str = Form("#FFFFFF"),
+    dot_style: str = Form("square"),
+    eye_style: str = Form("square"),
+    container_shape: str = Form("square"),
+    frame_color: str = Form("#000000"),
+    frame_font: str = Form("arial"),
+    container_effect: str = Form("flat"),
+):
+    import csv
+    import zipfile
+    import re as _re
+
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="No file uploaded")
+
+    content = await file.read()
+    rows = []  # list of (url, label)
+    fname = file.filename.lower()
+
+    try:
+        if fname.endswith(".csv"):
+            text = content.decode("utf-8-sig", errors="replace")
+            reader = csv.DictReader(io.StringIO(text))
+            # Try DictReader first; fall back to plain reader if no headers
+            if reader.fieldnames and any(h.strip().lower() in ("url", "link", "destination") for h in reader.fieldnames):
+                url_key = next(h for h in reader.fieldnames if h.strip().lower() in ("url", "link", "destination"))
+                label_key = next((h for h in reader.fieldnames if h.strip().lower() in ("label", "name", "title")), None)
+                for row in reader:
+                    url = (row.get(url_key) or "").strip()
+                    label = (row.get(label_key) or "").strip() if label_key else ""
+                    if url:
+                        rows.append((url, label))
+            else:
+                # Plain CSV: first column = URL, second column (if present) = label
+                for line in csv.reader(io.StringIO(text)):
+                    if not line:
+                        continue
+                    url = line[0].strip()
+                    label = line[1].strip() if len(line) > 1 else ""
+                    if url and url.lower() not in ("url", "link", "destination"):
+                        rows.append((url, label))
+        elif fname.endswith(".xlsx") or fname.endswith(".xlsm"):
+            from openpyxl import load_workbook
+            wb = load_workbook(io.BytesIO(content), read_only=True, data_only=True)
+            ws = wb.active
+            header = None
+            for i, row in enumerate(ws.iter_rows(values_only=True)):
+                if i == 0:
+                    # Detect header
+                    if row and isinstance(row[0], str) and row[0].strip().lower() in ("url", "link", "destination"):
+                        header = [str(c).strip().lower() if c else "" for c in row]
+                        continue
+                if not row or not row[0]:
+                    continue
+                url = str(row[0]).strip()
+                label = str(row[1]).strip() if len(row) > 1 and row[1] else ""
+                rows.append((url, label))
+        else:
+            raise HTTPException(status_code=400, detail="File must be .csv or .xlsx")
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Could not parse file: {str(e)[:200]}")
+
+    if not rows:
+        raise HTTPException(status_code=400, detail="No URLs found in file")
+    if len(rows) > 200:
+        raise HTTPException(status_code=400, detail=f"Maximum 200 QR codes per upload (you uploaded {len(rows)})")
+
+    # Generate ZIP
+    zip_buf = io.BytesIO()
+    with zipfile.ZipFile(zip_buf, "w", zipfile.ZIP_DEFLATED) as zf:
+        used_names = set()
+        for idx, (url, label) in enumerate(rows, 1):
+            img_bytes = build_qr_image(url, fg_color, bg_color, None, dot_style, eye_style, container_shape, label, False, "#000000", 2, frame_color, frame_font, container_effect)
+            # Sanitize filename
+            base = label or f"qr-{idx:03d}"
+            safe = _re.sub(r"[^A-Za-z0-9 _-]", "", base).strip().replace(" ", "_")[:40] or f"qr-{idx:03d}"
+            name = f"{safe}.png"
+            counter = 1
+            while name in used_names:
+                counter += 1
+                name = f"{safe}-{counter}.png"
+            used_names.add(name)
+            zf.writestr(name, img_bytes)
+
+    zip_buf.seek(0)
+    return Response(
+        content=zip_buf.read(),
+        media_type="application/zip",
+        headers={"Content-Disposition": f'attachment; filename="forge-qr-bulk-{len(rows)}.zip"'},
+    )
+
+
 # ── Dynamic QR API ────────────────────────────────────────────────────────────
 
 @app.post("/api/qr/dynamic")
