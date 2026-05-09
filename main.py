@@ -484,6 +484,12 @@ async def guide(request: Request):
     return templates.TemplateResponse("guide.html", {"request": request})
 
 
+@app.get("/generator")
+async def generator(request: Request, db: Session = Depends(get_db)):
+    stats = db.query(SiteStats).filter(SiteStats.id == 1).first()
+    return templates.TemplateResponse("generator.html", {"request": request, "visitor_count": stats.visitor_count if stats else 0})
+
+
 @app.post("/api/ai-qr-overlay")
 async def generate_ai_qr_overlay(
     request: Request,

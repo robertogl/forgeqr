@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Standard QR Generator — Forge QR</title>
+  <meta name="description" content="Forge QR is a free online QR code generator. Create static or dynamic QR codes with custom colors, logos, shapes, and frames. No account required.">
+  <meta name="keywords" content="QR code generator, free QR code, dynamic QR code, custom QR code, QR code with logo, QR code maker, static QR code, WiFi QR code, vCard QR code">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://forgeqrcode.com/generator">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Forge QR — Free QR Code Generator">
+  <meta property="og:description" content="Create beautiful, customizable QR codes — static or dynamic, with your logo. Free, no account required.">
+  <meta property="og:url" content="https://forgeqrcode.com/generator">
+  <meta property="og:site_name" content="Forge QR">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Forge QR — Free QR Code Generator">
+  <meta name="twitter:description" content="Create beautiful, customizable QR codes — static or dynamic, with your logo. Free, no account required.">
+
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Forge QR",
+    "url": "https://forgeqrcode.com/",
+    "description": "Free online QR code generator. Create static or dynamic QR codes with custom colors, logos, dot styles, and frames. No account required.",
+    "applicationCategory": "UtilityApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "featureList": [
+      "Static QR codes",
+      "Dynamic QR codes with redirect tracking",
+      "App Store QR codes",
+      "Custom colors and logos",
+      "Multiple dot and eye styles",
+      "Circle, rounded, and square container shapes",
+      "Download as PNG"
+    ]
+  }
+  </script>
+
+  <!-- Google tag (gtag.js) -->
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('consent','default',{analytics_storage:'denied',ad_storage:'denied',wait_for_update:500});</script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-HWR5941KV2"></script>
+  <script>gtag('js',new Date());gtag('config','G-HWR5941KV2');</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5198883341858973" crossorigin="anonymous"></script>
+
+  <link rel="icon" type="image/png" href="/static/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<div style="background:linear-gradient(135deg,#0f172a,#1e3a5f);color:#fff;padding:40px 24px;text-align:center;">
+  <h1 style="font-size:1.7rem;margin:0 0 6px;">🎨 Standard QR Generator</h1>
+  <p style="color:#94a3b8;font-size:.9rem;margin:0;max-width:520px;margin:0 auto;line-height:1.6;">Full visual control — colors, dot styles, corners, shapes, logos, and frames. Static, dynamic, app store, or bulk.</p>
+  <div style="margin-top:14px;"><a href="/" style="color:#67e8f9;font-size:.82rem;text-decoration:none;">← Back to home</a></div>
+</div>
+
+<main class="container" id="generator">
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="static">⬛ Static QR</button>
+    <button class="tab-btn" data-tab="dynamic">🔄 Dynamic QR</button>
+    <button class="tab-btn" data-tab="app">📱 App Store QR</button>
+    <button class="tab-btn" data-tab="bulk">📊 Bulk QR</button>
+  </div>
+
+  <!-- ── STATIC TAB ── -->
+  <div id="tab-static" class="tab-content active">
+    <div class="tab-description">
+      <strong>Static QR codes</strong> encode your content permanently into the image — no server, no redirect, always works offline. Ideal for business cards, flyers, product labels, or any printed material where the destination won't change.
+      Supports <strong>URLs, plain text, WiFi credentials, email, phone numbers, vCard contacts,</strong> and <strong>social media profiles</strong>.
+      Customize colors, dot style, corner style, container shape, frame label, edge line, and logo. Downloads as a high-resolution PNG.
+    </div>
+    <div class="card-grid">
+
+      <div class="form-card">
+        <h2>Configure your QR code</h2>
+
+        <!-- QR Type -->
+        <div class="form-group">
+          <label>QR Type</label>
+          <div class="type-grid" id="type-grid">
+            <button class="type-btn active" data-type="url">🔗 URL</button>
+            <button class="type-btn" data-type="text">📝 Text</button>
+            <button class="type-btn" data-type="wifi">📶 WiFi</button>
+            <button class="type-btn" data-type="email">✉️ Email</button>
+            <button class="type-btn" data-type="phone">📞 Phone</button>
+            <button class="type-btn" data-type="vcard">👤 vCard</button>
+            <button class="type-btn" data-type="social">📸 Social</button>
+          </div>
+        </div>
+
+        <!-- URL -->
+        <div id="fields-url" class="type-fields active">
+          <div class="form-group">
+            <label for="url-input">Website URL</label>
+            <input type="url" id="url-input" placeholder="https://example.com">
+          </div>
+        </div>
+
+        <!-- Text -->
+        <div id="fields-text" class="type-fields">
+          <div class="form-group">
+            <label for="text-input">Text</label>
+            <textarea id="text-input" placeholder="Enter any text here…" rows="4"></textarea>
+          </div>
+        </div>
+
+        <!-- WiFi -->
+        <div id="fields-wifi" class="type-fields">
+          <div class="form-group">
+            <label for="wifi-ssid">Network Name (SSID)</label>
+            <input type="text" id="wifi-ssid" placeholder="MyNetwork">
+          </div>
+          <div class="form-group">
+            <label for="wifi-password">Password</label>
+            <input type="password" id="wifi-password" placeholder="Password">
+          </div>
+          <div class="form-group">
+            <label for="wifi-security">Security Type</label>
+            <select id="wifi-security">
+              <option value="WPA">WPA / WPA2</option>
+              <option value="WEP">WEP</option>
+              <option value="nopass">None (open network)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="wifi-hidden"> Hidden network
+            </label>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div id="fields-email" class="type-fields">
+          <div class="form-group">
+            <label for="email-address">Email Address</label>
+            <input type="email" id="email-address" placeholder="contact@example.com">
+          </div>
+          <div class="form-group">
+            <label for="email-subject">Subject (optional)</label>
+            <input type="text" id="email-subject" placeholder="Hello!">
+          </div>
+          <div class="form-group">
+            <label for="email-body">Message (optional)</label>
+            <textarea id="email-body" rows="3" placeholder="Your message…"></textarea>
+          </div>
+        </div>
+
+        <!-- Phone -->
+        <div id="fields-phone" class="type-fields">
+          <div class="form-group">
+            <label for="phone-number">Phone Number</label>
+            <input type="tel" id="phone-number" placeholder="+1 234 567 8900">
+          </div>
+        </div>
+
+        <!-- vCard -->
+        <div id="fields-vcard" class="type-fields">
+          <div class="form-group">
+            <label for="vcard-name">Full Name</label>
+            <input type="text" id="vcard-name" placeholder="Jane Doe">
+          </div>
+          <div class="form-group">
+            <label for="vcard-phone">Phone</label>
+            <input type="tel" id="vcard-phone" placeholder="+1 234 567 8900">
+          </div>
+          <div class="form-group">
+            <label for="vcard-email">Email</label>
+            <input type="email" id="vcard-email" placeholder="jane@example.com">
+          </div>
+          <div class="form-group">
+            <label for="vcard-org">Organization</label>
+            <input type="text" id="vcard-org" placeholder="Acme Inc.">
+          </div>
+          <div class="form-group">
+            <label for="vcard-url">Website</label>
+            <input type="url" id="vcard-url" placeholder="https://example.com">
+          </div>
+        </div>
+
+        <!-- Social Media -->
+        <div id="fields-social" class="type-fields">
+          <div class="form-group">
+            <label for="social-platform">Platform</label>
+            <select id="social-platform">
+              <option value="https://instagram.com/">Instagram</option>
+              <option value="https://facebook.com/">Facebook</option>
+              <option value="whatsapp">WhatsApp</option>
+              <option value="https://x.com/">X / Twitter</option>
+              <option value="https://linkedin.com/in/">LinkedIn</option>
+              <option value="https://tiktok.com/@">TikTok</option>
+              <option value="https://youtube.com/@">YouTube</option>
+              <option value="https://github.com/">GitHub</option>
+              <option value="">Other (paste full URL)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="social-handle" id="social-handle-label">Username / Handle</label>
+            <input type="text" id="social-handle" placeholder="yourhandle">
+            <small class="field-hint" id="social-hint">e.g. instagram.com/<strong>yourhandle</strong></small>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Colors -->
+        <div class="form-group">
+          <label>Colors <button type="button" class="btn-reset-colors" data-fg="static-fg" data-bg="static-bg" data-btn="static-generate-btn">↺ Reset</button></label>
+          <div class="color-row">
+            <label class="color-item">
+              <input type="color" id="static-fg" value="#000000">
+              <span>Foreground</span>
+            </label>
+            <label class="color-item">
+              <input type="color" id="static-bg" value="#ffffff">
+              <span>Background</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Container Shape -->
+        <div class="form-group">
+          <label>Container Shape</label>
+          <div class="shape-grid" id="static-shape-grid">
+            <button class="shape-btn active" data-style="square"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><rect width="24" height="24"/></svg>Square</button>
+            <button class="shape-btn" data-style="rounded"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><rect width="24" height="24" rx="6"/></svg>Rounded</button>
+            <button class="shape-btn" data-style="circle"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="12"/></svg>Circle</button>
+          </div>
+        </div>
+
+        <!-- Container Effect -->
+        <div class="form-group">
+          <label>Container Effect</label>
+          <div class="effect-grid" id="static-effect-grid">
+            <button class="effect-btn active" data-effect="flat">
+              <svg width="28" height="28" viewBox="0 0 28 28"><rect x="2" y="2" width="24" height="24" rx="2" fill="currentColor"/></svg>Flat
+            </button>
+            <button class="effect-btn" data-effect="shadow">
+              <svg width="28" height="28" viewBox="0 0 28 28"><rect x="4" y="4" width="20" height="20" rx="2" fill="#999" opacity=".5"/><rect x="2" y="2" width="20" height="20" rx="2" fill="currentColor"/></svg>Shadow
+            </button>
+            <button class="effect-btn" data-effect="3d">
+              <svg width="28" height="28" viewBox="0 0 28 28"><rect x="5" y="5" width="20" height="20" rx="2" fill="#333"/><rect x="2" y="2" width="20" height="20" rx="2" fill="currentColor"/><rect x="2" y="2" width="20" height="4" rx="2" fill="white" opacity=".25"/></svg>3D
+            </button>
+          </div>
+        </div>
+
+        <!-- Dot Style -->
+        <div class="form-group">
+          <label>Dot Style</label>
+          <div class="dot-grid" id="static-dot-grid">
+            <button class="dot-btn active" data-style="square"><svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><rect x="0" y="0" width="5" height="5"/><rect x="7.5" y="0" width="5" height="5"/><rect x="15" y="0" width="5" height="5"/><rect x="0" y="7.5" width="5" height="5"/><rect x="7.5" y="7.5" width="5" height="5"/><rect x="15" y="7.5" width="5" height="5"/><rect x="0" y="15" width="5" height="5"/><rect x="7.5" y="15" width="5" height="5"/><rect x="15" y="15" width="5" height="5"/></svg>Square</button>
+            <button class="dot-btn" data-style="rounded"><svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><rect x="0" y="0" width="6" height="6" rx="1.5"/><rect x="7" y="0" width="6" height="6" rx="1.5"/><rect x="14" y="0" width="6" height="6" rx="1.5"/><rect x="0" y="7" width="6" height="6" rx="1.5"/><rect x="7" y="7" width="6" height="6" rx="1.5"/><rect x="14" y="7" width="6" height="6" rx="1.5"/><rect x="0" y="14" width="6" height="6" rx="1.5"/><rect x="7" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/></svg>Rounded</button>
+            <button class="dot-btn" data-style="circle"><svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><circle cx="2.5" cy="2.5" r="2.5"/><circle cx="10" cy="2.5" r="2.5"/><circle cx="17.5" cy="2.5" r="2.5"/><circle cx="2.5" cy="10" r="2.5"/><circle cx="10" cy="10" r="2.5"/><circle cx="17.5" cy="10" r="2.5"/><circle cx="2.5" cy="17.5" r="2.5"/><circle cx="10" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>Dots</button>
+            <button class="dot-btn" data-style="gapped"><svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><rect x="1" y="1" width="4" height="4"/><rect x="8" y="1" width="4" height="4"/><rect x="15" y="1" width="4" height="4"/><rect x="1" y="8" width="4" height="4"/><rect x="8" y="8" width="4" height="4"/><rect x="15" y="8" width="4" height="4"/><rect x="1" y="15" width="4" height="4"/><rect x="8" y="15" width="4" height="4"/><rect x="15" y="15" width="4" height="4"/></svg>Gapped</button>
+            <button class="dot-btn" data-style="vertical"><svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><rect x="0" y="0" width="5" height="20" rx="1"/><rect x="7.5" y="0" width="5" height="20" rx="1"/><rect x="15" y="0" width="5" height="20" rx="1"/></svg>Vertical</button>
+            <button class="dot-btn" data-style="horizontal"><svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><rect x="0" y="0" width="20" height="5" rx="1"/><rect x="0" y="7.5" width="20" height="5" rx="1"/><rect x="0" y="15" width="20" height="5" rx="1"/></svg>Horizontal</button>
+          </div>
+        </div>
+
+        <!-- Corner Style -->
+        <div class="form-group">
+          <label>Corner Style</label>
+          <div class="dot-grid" id="static-eye-grid">
+            <button class="dot-btn active" data-style="square"><svg width="20" height="20" viewBox="0 0 20 20"><rect x="1.5" y="1.5" width="17" height="17" fill="none" stroke="currentColor" stroke-width="3"/><rect x="6" y="6" width="8" height="8" fill="currentColor"/></svg>Square</button>
+            <button class="dot-btn" data-style="rounded"><svg width="20" height="20" viewBox="0 0 20 20"><rect x="1.5" y="1.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="3"/><rect x="6" y="6" width="8" height="8" rx="2" fill="currentColor"/></svg>Rounded</button>
+            <button class="dot-btn" data-style="circle"><svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="10" cy="10" r="4" fill="currentColor"/></svg>Circle</button>
+          </div>
+        </div>
+
+        <!-- Frame -->
+        <div class="form-group">
+          <label for="static-frame-text">Frame Label <span class="optional-tag">optional</span></label>
+          <input type="text" id="static-frame-text" placeholder='e.g. "Scan me!" or "Visit our website"' maxlength="40">
+          <small class="field-hint">Adds a bordered frame with your text below the QR code</small>
+          <div class="frame-text-style">
+            <label class="color-item">
+              <input type="color" id="static-frame-color" value="#000000">
+              <span>Text color</span>
+            </label>
+            <select id="static-frame-font" class="font-select">
+              <option value="arial">Arial</option>
+              <option value="calibri">Calibri</option>
+              <option value="segoeui">Segoe UI</option>
+              <option value="tahoma">Tahoma</option>
+              <option value="verdana">Verdana</option>
+              <option value="trebuchet">Trebuchet MS</option>
+              <option value="candara">Candara</option>
+              <option value="corbel">Corbel</option>
+              <option value="georgia">Georgia</option>
+              <option value="cambria">Cambria</option>
+              <option value="constantia">Constantia</option>
+              <option value="palatino">Palatino Linotype</option>
+              <option value="times">Times New Roman</option>
+              <option value="impact">Impact</option>
+              <option value="comic">Comic Sans MS</option>
+              <option value="courier">Courier New</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Edge Line -->
+        <div class="form-group">
+          <label>Edge Line <span class="optional-tag">optional</span></label>
+          <div class="edge-line-row">
+            <label class="edge-enable-label">
+              <input type="checkbox" id="static-edge-enable"> Enable
+            </label>
+            <div class="edge-line-controls" id="static-edge-controls">
+              <input type="color" id="static-edge-color" value="#000000" title="Line color">
+              <label class="edge-width-label">Thickness
+                <input type="range" id="static-edge-width" min="1" max="12" value="2">
+                <span id="static-edge-width-val">2</span>px
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Logo upload -->
+        <div class="form-group">
+          <label>Logo / Image <span class="optional-tag">optional</span></label>
+          <div class="upload-zone" id="static-upload-zone">
+            <input type="file" id="static-logo-input" accept="image/*">
+            <div class="upload-icon">🖼️</div>
+            <p>Click to upload or drag &amp; drop</p>
+            <small>PNG, JPG, SVG — max 5 MB</small>
+          </div>
+          <div class="logo-preview-row" id="static-logo-preview">
+            <img id="static-logo-img" src="" alt="Logo">
+            <span id="static-logo-name"></span>
+            <button type="button" class="btn-remove" id="static-remove-logo">Remove</button>
+          </div>
+        </div>
+
+        <button class="btn-primary" id="static-generate-btn">Generate QR Code</button>
+      </div>
+
+      <!-- Preview -->
+      <div class="preview-card">
+        <h2>Preview</h2>
+        <div class="qr-preview" id="static-preview">
+          <div class="preview-placeholder">
+            <div class="preview-icon">⬛</div>
+            <p>Your QR code will appear here</p>
+          </div>
+        </div>
+        <button class="btn-download" id="static-download-btn">⬇ Download PNG</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── DYNAMIC TAB ── -->
+  <div id="tab-dynamic" class="tab-content">
+    <div class="tab-description">
+      <strong>Dynamic QR codes</strong> point to a short redirect link, so you can change the destination at any time without reprinting. Perfect for restaurant menus, event posters, marketing campaigns, or any printed material that may need updating.
+      After creating one you receive a private <strong>Manage link</strong> to update the destination URL whenever you like, and a <strong>📊 Scan Stats page</strong> showing total scans over time, top countries and cities, device type (mobile/tablet/desktop), operating system, and browser — all updated in real time with every scan.
+    </div>
+    <div class="card-grid">
+
+      <div class="form-card">
+        <h2>Create a Dynamic QR code</h2>
+
+        <div class="form-group">
+          <label for="dynamic-url">Destination URL</label>
+          <input type="url" id="dynamic-url" placeholder="https://example.com/landing-page">
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Colors -->
+        <div class="form-group">
+          <label>Colors <button type="button" class="btn-reset-colors" data-fg="dynamic-fg" data-bg="dynamic-bg" data-btn="dynamic-generate-btn">↺ Reset</button></label>
+          <div class="color-row">
+            <label class="color-item">
+              <input type="color" id="dynamic-fg" value="#000000">
+              <span>Foreground</span>
+            </label>
+            <label class="color-item">
+              <input type="color" id="dynamic-bg" value="#ffffff">
+              <span>Background</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Container Shape -->
+        <div class="form-group">
+          <label>Container Shape</label>
+          <div class="shape-grid" id="dynamic-shape-grid">
+            <button class="shape-btn active" data-style="square"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><rect width="24" height="24"/></svg>Square</button>
+            <button class="shape-btn" data-style="rounded"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><rect width="24" height="24" rx="6"/></svg>Rounded</button>
+            <button class="shape-btn" data-style="circle"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="12"/></svg>Circle</button>
+          </div>
+        </div>
+
+        <!-- Container Effect -->
+        <div class="form-group">
+          <label>Container Effect</label>
+          <div class="effect-grid" id="dynamic-effect-grid">
+            <button class="effect-btn active" data-effect="flat">
+              <svg width="28" height="28" viewBox="0 0 28 28"><rect x="2" y="2" width="24" height="24" rx="2" fill="currentColor"/></svg>Flat
+            </button>
+            <button class="effect-btn" data-effect="shadow">
+              <svg width="28" height="28" viewBox="0 0 28 28"><rect x="4" y="4" width="20" height="20" rx="2" fill="#999" opacity=".5"/><rect x="2" y="2" width="20" height="20" rx="2" fill="currentColor"/></svg>Shadow
+            </button>
+            <button class="effect-btn" data-effect="3d">
+              <svg width="28" height="28" viewBox="0 0 28 28"><rect x="5" y="5" width="20" height="20" rx="2" fill="#333"/><rect x="2" y="2" width="20" height="20" rx="2" fill="currentColor"/><rect x="2" y="2" width="20" height="4" rx="2" fill="white" opacity=".25"/></svg>3D
+            </button>
+          </div>
+        </div>
+
+        <!-- Dot Style -->
+        <div class="form-group">
+          <label>Dot Style</label>
+          <div class="dot-grid" id="dynamic-dot-grid">
+            <button class="dot-btn active" data-style="square"><svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><rect x="0" y="0" width="5" height="5"/><rect x="7.5" y="0" width="5" height="5"/><rect x="15" y="0" width="5" height="5"/><rect x="0" y="7.5" width="5" height="5"/><rect x="7.5" y="7.5" width="5" height="5"/><rect x="15" y="7.5" width="5" height="5"/><rect x="0" y="15" width="5" height="5"/><rect x="7.5" y="15" width="5" height="5"/><rect x="15" y="15" width="5" height="5"/></svg>Square</button>
+            <button class="dot-btn" data-style="rounded"><svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><rect x="0" y="0" width="6" height="6" rx="1.5"/><rect x="7" y="0" width="6" height="6" rx="1.5"/><rect x="14" y="0" width="6" height="6" rx="1.5"/><rect x="0" y="7" width="6" height="6" rx="1.5"/><rect x="7" y="7" width="6" height="6" rx="1.5"/><rect x="14" y="7" width="6" height="6" rx="1.5"/><rect x="0" y="14" width="6" height="6" rx="1.5"/><rect x="7" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/></svg>Rounded</button>
+            <button class="dot-btn" data-style="circle"><svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><circle cx="2.5" cy="2.5" r="2.5"/><circle cx="10" cy="2.5" r="2.5"/><circle cx="17.5" cy="2.5" r="2.5"/><circle cx="2.5" cy="10" r="2.5"/><circle cx="10" cy="10" r="2.5"/><circle cx="17.5" cy="10" r="2.5"/><circle cx="2.5" cy="17.5" r="2.5"/><circle cx="10" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>Dots</button>
+            <button class="dot-btn" data-style="gapped"><svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><rect x="1" y="1" width="4" height="4"/><rect x="8" y="1" width="4" height="4"/><rect x="15" y="1" width="4" height="4"/><rect x="1" y="8" width="4" height="4"/><rect x="8" y="8" width="4" height="4"/><rect x="15" y="8" width="4" height="4"/><rect x="1" y="15" width="4" height="4"/><rect x="8" y="15" width="4" height="4"/><rect x="15" y="15" width="4" height="4"/></svg>Gapped</button>
+            <button class="dot-btn" data-style="vertical"><svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><rect x="0" y="0" width="5" height="20" rx="1"/><rect x="7.5" y="0" width="5" height="20" rx="1"/><rect x="15" y="0" width="5" height="20" rx="1"/></svg>Vertical</button>
+            <button class="dot-btn" data-style="horizontal"><svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><rect x="0" y="0" width="20" height="5" rx="1"/><rect x="0" y="7.5" width="20" height="5" rx="1"/><rect x="0" y="15" width="20" height="5" rx="1"/></svg>Horizontal</button>
+          </div>
+        </div>
+
+        <!-- Corner Style -->
+        <div class="form-group">
+          <label>Corner Style</label>
+          <div class="dot-grid" id="dynamic-eye-grid">
+            <button class="dot-btn active" data-style="square"><svg width="20" height="20" viewBox="0 0 20 20"><rect x="1.5" y="1.5" width="17" height="17" fill="none" stroke="currentColor" stroke-width="3"/><rect x="6" y="6" width="8" height="8" fill="currentColor"/></svg>Square</button>
+            <button class="dot-btn" data-style="rounded"><svg width="20" height="20" viewBox="0 0 20 20"><rect x="1.5" y="1.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="3"/><rect x="6" y="6" width="8" height="8" rx="2" fill="currentColor"/></svg>Rounded</button>
+            <button class="dot-btn" data-style="circle"><svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="10" cy="10" r="4" fill="currentColor"/></svg>Circle</button>
+          </div>
+        </div>
+
+        <!-- Frame -->
+        <div class="form-group">
+          <label for="dynamic-frame-text">Frame Label <span class="optional-tag">optional</span></label>
+          <input type="text" id="dynamic-frame-text" placeholder='e.g. "Scan me!" or "Visit our website"' maxlength="40">
+          <small class="field-hint">Adds a bordered frame with your text below the QR code</small>
+          <div class="frame-text-style">
+            <label class="color-item">
+              <input type="color" id="dynamic-frame-color" value="#000000">
+              <span>Text color</span>
+            </label>
+            <select id="dynamic-frame-font" class="font-select">
+              <option value="arial">Arial</option>
+              <option value="calibri">Calibri</option>
+              <option value="segoeui">Segoe UI</option>
+              <option value="tahoma">Tahoma</option>
+              <option value="verdana">Verdana</option>
+              <option value="trebuchet">Trebuchet MS</option>
+              <option value="candara">Candara</option>
+              <option value="corbel">Corbel</option>
+              <option value="georgia">Georgia</option>
+              <option value="cambria">Cambria</option>
+              <option value="constantia">Constantia</option>
+              <option value="palatino">Palatino Linotype</option>
+              <option value="times">Times New Roman</option>
+              <option value="impact">Impact</option>
+              <option value="comic">Comic Sans MS</option>
+              <option value="courier">Courier New</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Edge Line -->
+        <div class="form-group">
+          <label>Edge Line <span class="optional-tag">optional</span></label>
+          <div class="edge-line-row">
+            <label class="edge-enable-label">
+              <input type="checkbox" id="dynamic-edge-enable"> Enable
+            </label>
+            <div class="edge-line-controls" id="dynamic-edge-controls">
+              <input type="color" id="dynamic-edge-color" value="#000000" title="Line color">
+              <label class="edge-width-label">Thickness
+                <input type="range" id="dynamic-edge-width" min="1" max="12" value="2">
+                <span id="dynamic-edge-width-val">2</span>px
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Logo upload -->
+        <div class="form-group">
+          <label>Logo / Image <span class="optional-tag">optional</span></label>
+          <div class="upload-zone" id="dynamic-upload-zone">
+            <input type="file" id="dynamic-logo-input" accept="image/*">
+            <div class="upload-icon">🖼️</div>
+            <p>Click to upload or drag &amp; drop</p>
+            <small>PNG, JPG, SVG — max 5 MB</small>
+          </div>
+          <div class="logo-preview-row" id="dynamic-logo-preview">
+            <img id="dynamic-logo-img" src="" alt="Logo">
+            <span id="dynamic-logo-name"></span>
+            <button type="button" class="btn-remove" id="dynamic-remove-logo">Remove</button>
+          </div>
+        </div>
+
+        <button class="btn-primary" id="dynamic-generate-btn">Create Dynamic QR Code</button>
+      </div>
+
+      <!-- Preview -->
+      <div class="preview-card">
+        <h2>Preview</h2>
+        <div class="qr-preview" id="dynamic-preview">
+          <div class="preview-placeholder">
+            <div class="preview-icon">🔄</div>
+            <p>Your QR code will appear here</p>
+          </div>
+        </div>
+        <button class="btn-download" id="dynamic-download-btn">⬇ Download PNG</button>
+        <div class="result-box" id="dynamic-result-box">
+          <h3>✅ Dynamic QR created!</h3>
+          <div class="copy-row">
+            <label>Scan</label>
+            <input class="copy-input" id="result-redirect" readonly>
+            <button class="btn-copy" data-target="result-redirect"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="13" height="13" x="9" y="9" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+          </div>
+          <div class="copy-row">
+            <label>Manage</label>
+            <input class="copy-input" id="result-manage" readonly>
+            <button class="btn-copy" data-target="result-manage"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="13" height="13" x="9" y="9" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+          </div>
+          <p style="font-size:.78rem;color:var(--text-muted);margin-top:10px;">
+            📌 Save the <strong>Manage</strong> link — it's the only way to edit or view stats for this QR code.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── APP STORE TAB ── -->
+  <div id="tab-app" class="tab-content">
+    <div class="tab-description">
+      <strong>App Store QR codes</strong> are smart redirect codes that send each user to the right destination automatically — iPhone and iPad users go to the <strong>Apple App Store</strong>, Android users to <strong>Google Play</strong>, and everyone else (desktop, unknown devices) to a fallback URL of your choice. One QR code covers all platforms, making it ideal for app download campaigns, posters, and packaging.
+    </div>
+    <div class="card-grid">
+
+      <div class="form-card">
+        <h2>Configure App Store QR</h2>
+
+        <div class="form-group">
+          <label for="app-ios-url">iOS App Store URL</label>
+          <input type="url" id="app-ios-url" placeholder="https://apps.apple.com/app/id…">
+        </div>
+        <div class="form-group">
+          <label for="app-android-url">Google Play URL</label>
+          <input type="url" id="app-android-url" placeholder="https://play.google.com/store/apps/details?id=…">
+        </div>
+        <div class="form-group">
+          <label for="app-fallback-url">Fallback URL <span class="optional-tag">optional</span></label>
+          <input type="url" id="app-fallback-url" placeholder="https://yourapp.com (shown on desktop)">
+          <small class="field-hint">Shown on desktop browsers or when no store URL is matched</small>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Colors -->
+        <div class="form-group">
+          <label>Colors <button type="button" class="btn-reset-colors" data-fg="app-fg" data-bg="app-bg" data-btn="app-generate-btn">↺ Reset</button></label>
+          <div class="color-row">
+            <label class="color-item">
+              <input type="color" id="app-fg" value="#000000">
+              <span>Foreground</span>
+            </label>
+            <label class="color-item">
+              <input type="color" id="app-bg" value="#ffffff">
+              <span>Background</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Container Shape -->
+        <div class="form-group">
+          <label>Container Shape</label>
+          <div class="shape-grid" id="app-shape-grid">
+            <button class="shape-btn active" data-style="square"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><rect width="24" height="24"/></svg>Square</button>
+            <button class="shape-btn" data-style="rounded"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><rect width="24" height="24" rx="6"/></svg>Rounded</button>
+            <button class="shape-btn" data-style="circle"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="12"/></svg>Circle</button>
+          </div>
+        </div>
+
+        <!-- Container Effect -->
+        <div class="form-group">
+          <label>Container Effect</label>
+          <div class="effect-grid" id="app-effect-grid">
+            <button class="effect-btn active" data-effect="flat">
+              <svg width="28" height="28" viewBox="0 0 28 28"><rect x="2" y="2" width="24" height="24" rx="2" fill="currentColor"/></svg>Flat
+            </button>
+            <button class="effect-btn" data-effect="shadow">
+              <svg width="28" height="28" viewBox="0 0 28 28"><rect x="4" y="4" width="20" height="20" rx="2" fill="#999" opacity=".5"/><rect x="2" y="2" width="20" height="20" rx="2" fill="currentColor"/></svg>Shadow
+            </button>
+            <button class="effect-btn" data-effect="3d">
+              <svg width="28" height="28" viewBox="0 0 28 28"><rect x="5" y="5" width="20" height="20" rx="2" fill="#333"/><rect x="2" y="2" width="20" height="20" rx="2" fill="currentColor"/><rect x="2" y="2" width="20" height="4" rx="2" fill="white" opacity=".25"/></svg>3D
+            </button>
+          </div>
+        </div>
+
+        <!-- Dot Style -->
+        <div class="form-group">
+          <label>Dot Style</label>
+          <div class="dot-grid" id="app-dot-grid">
+            <button class="dot-btn active" data-style="square"><svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><rect x="0" y="0" width="5" height="5"/><rect x="7.5" y="0" width="5" height="5"/><rect x="15" y="0" width="5" height="5"/><rect x="0" y="7.5" width="5" height="5"/><rect x="7.5" y="7.5" width="5" height="5"/><rect x="15" y="7.5" width="5" height="5"/><rect x="0" y="15" width="5" height="5"/><rect x="7.5" y="15" width="5" height="5"/><rect x="15" y="15" width="5" height="5"/></svg>Square</button>
+            <button class="dot-btn" data-style="rounded"><svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><rect x="0" y="0" width="6" height="6" rx="1.5"/><rect x="7" y="0" width="6" height="6" rx="1.5"/><rect x="14" y="0" width="6" height="6" rx="1.5"/><rect x="0" y="7" width="6" height="6" rx="1.5"/><rect x="7" y="7" width="6" height="6" rx="1.5"/><rect x="14" y="7" width="6" height="6" rx="1.5"/><rect x="0" y="14" width="6" height="6" rx="1.5"/><rect x="7" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/></svg>Rounded</button>
+            <button class="dot-btn" data-style="circle"><svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><circle cx="2.5" cy="2.5" r="2.5"/><circle cx="10" cy="2.5" r="2.5"/><circle cx="17.5" cy="2.5" r="2.5"/><circle cx="2.5" cy="10" r="2.5"/><circle cx="10" cy="10" r="2.5"/><circle cx="17.5" cy="10" r="2.5"/><circle cx="2.5" cy="17.5" r="2.5"/><circle cx="10" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>Dots</button>
+            <button class="dot-btn" data-style="gapped"><svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><rect x="1" y="1" width="4" height="4"/><rect x="8" y="1" width="4" height="4"/><rect x="15" y="1" width="4" height="4"/><rect x="1" y="8" width="4" height="4"/><rect x="8" y="8" width="4" height="4"/><rect x="15" y="8" width="4" height="4"/><rect x="1" y="15" width="4" height="4"/><rect x="8" y="15" width="4" height="4"/><rect x="15" y="15" width="4" height="4"/></svg>Gapped</button>
+            <button class="dot-btn" data-style="vertical"><svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><rect x="0" y="0" width="5" height="20" rx="1"/><rect x="7.5" y="0" width="5" height="20" rx="1"/><rect x="15" y="0" width="5" height="20" rx="1"/></svg>Vertical</button>
+            <button class="dot-btn" data-style="horizontal"><svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><rect x="0" y="0" width="20" height="5" rx="1"/><rect x="0" y="7.5" width="20" height="5" rx="1"/><rect x="0" y="15" width="20" height="5" rx="1"/></svg>Horizontal</button>
+          </div>
+        </div>
+
+        <!-- Corner Style -->
+        <div class="form-group">
+          <label>Corner Style</label>
+          <div class="dot-grid" id="app-eye-grid">
+            <button class="dot-btn active" data-style="square"><svg width="20" height="20" viewBox="0 0 20 20"><rect x="1.5" y="1.5" width="17" height="17" fill="none" stroke="currentColor" stroke-width="3"/><rect x="6" y="6" width="8" height="8" fill="currentColor"/></svg>Square</button>
+            <button class="dot-btn" data-style="rounded"><svg width="20" height="20" viewBox="0 0 20 20"><rect x="1.5" y="1.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="3"/><rect x="6" y="6" width="8" height="8" rx="2" fill="currentColor"/></svg>Rounded</button>
+            <button class="dot-btn" data-style="circle"><svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="10" cy="10" r="4" fill="currentColor"/></svg>Circle</button>
+          </div>
+        </div>
+
+        <!-- Frame -->
+        <div class="form-group">
+          <label for="app-frame-text">Frame Label <span class="optional-tag">optional</span></label>
+          <input type="text" id="app-frame-text" placeholder='e.g. "Download our app!"' maxlength="40">
+          <div class="frame-text-style">
+            <label class="color-item">
+              <input type="color" id="app-frame-color" value="#000000">
+              <span>Text color</span>
+            </label>
+            <select id="app-frame-font" class="font-select">
+              <option value="arial">Arial</option>
+              <option value="calibri">Calibri</option>
+              <option value="segoeui">Segoe UI</option>
+              <option value="tahoma">Tahoma</option>
+              <option value="verdana">Verdana</option>
+              <option value="trebuchet">Trebuchet MS</option>
+              <option value="candara">Candara</option>
+              <option value="corbel">Corbel</option>
+              <option value="georgia">Georgia</option>
+              <option value="cambria">Cambria</option>
+              <option value="constantia">Constantia</option>
+              <option value="palatino">Palatino Linotype</option>
+              <option value="times">Times New Roman</option>
+              <option value="impact">Impact</option>
+              <option value="comic">Comic Sans MS</option>
+              <option value="courier">Courier New</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Edge Line -->
+        <div class="form-group">
+          <label>Edge Line <span class="optional-tag">optional</span></label>
+          <div class="edge-line-row">
+            <label class="edge-enable-label">
+              <input type="checkbox" id="app-edge-enable"> Enable
+            </label>
+            <div class="edge-line-controls" id="app-edge-controls">
+              <input type="color" id="app-edge-color" value="#000000" title="Line color">
+              <label class="edge-width-label">Thickness
+                <input type="range" id="app-edge-width" min="1" max="12" value="2">
+                <span id="app-edge-width-val">2</span>px
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Logo upload -->
+        <div class="form-group">
+          <label>Logo / Image <span class="optional-tag">optional</span></label>
+          <div class="upload-zone" id="app-upload-zone">
+            <input type="file" id="app-logo-input" accept="image/*">
+            <div class="upload-icon">🖼️</div>
+            <p>Click to upload or drag &amp; drop</p>
+            <small>PNG, JPG, SVG — max 5 MB</small>
+          </div>
+          <div class="logo-preview-row" id="app-logo-preview">
+            <img id="app-logo-img" src="" alt="Logo">
+            <span id="app-logo-name"></span>
+            <button type="button" class="btn-remove" id="app-remove-logo">Remove</button>
+          </div>
+        </div>
+
+        <button class="btn-primary" id="app-generate-btn">Create App Store QR Code</button>
+      </div>
+
+      <!-- Preview -->
+      <div class="preview-card">
+        <h2>Preview</h2>
+        <div class="qr-preview" id="app-preview">
+          <div class="preview-placeholder">
+            <div class="preview-icon">📱</div>
+            <p>Your QR code will appear here</p>
+          </div>
+        </div>
+        <button class="btn-download" id="app-download-btn">⬇ Download PNG</button>
+        <div class="result-box" id="app-result-box">
+          <h3>✅ App Store QR created!</h3>
+          <div class="copy-row">
+            <label>Scan URL</label>
+            <input class="copy-input" id="app-result-url" readonly>
+            <button class="btn-copy" data-target="app-result-url"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="13" height="13" x="9" y="9" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+          </div>
+          <p style="font-size:.78rem;color:var(--text-muted);margin-top:10px;">
+            📌 This QR automatically redirects to the right app store based on the visitor's device.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── BULK TAB ── -->
+  <div id="tab-bulk" class="tab-content">
+    <div class="tab-description">
+      <strong>Bulk QR codes</strong> let you generate many QR codes at once from a CSV or Excel file. Perfect for restaurant chains with multiple locations, marketing campaigns with personalized URLs, asset tagging, event tickets, or any case where you need lots of unique QR codes.
+      Upload a file with one URL per row, choose the visual style, and download a ZIP file containing all generated QR codes as PNGs.
+    </div>
+
+    <div class="qr-form">
+      <div style="background:#f0fdfa;border:1.5px solid #99f6e4;border-radius:10px;padding:16px 20px;margin-bottom:18px;font-size:.85rem;color:#0f766e;line-height:1.7;">
+        <strong style="display:block;margin-bottom:6px;">📄 File format</strong>
+        Your file should have <strong>one URL per row</strong>. Optionally include a second column with a label (used as the filename in the ZIP).
+        <br>
+        <strong>Example CSV:</strong>
+        <pre style="background:#fff;border:1px solid #ccfbf1;border-radius:6px;padding:8px 10px;margin:8px 0 0;font-size:.78rem;color:#134e4a;overflow-x:auto;">url,label
+https://example.com/london,London_Menu
+https://example.com/paris,Paris_Menu
+https://example.com/rome,Rome_Menu</pre>
+        Maximum <strong>200 QR codes per upload</strong>.
+      </div>
+
+      <div class="form-section">
+        <label class="form-label">Upload CSV or Excel file</label>
+        <input type="file" id="bulk-file" accept=".csv,.xlsx,.xlsm" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.875rem;font-family:inherit;background:#fff;cursor:pointer;">
+      </div>
+
+      <div class="form-section">
+        <label class="form-label">Foreground color</label>
+        <input type="color" id="bulk-fg" value="#000000" style="width:60px;height:40px;border:1.5px solid var(--border);border-radius:8px;padding:3px;cursor:pointer;">
+      </div>
+
+      <div class="form-section">
+        <label class="form-label">Background color</label>
+        <input type="color" id="bulk-bg" value="#FFFFFF" style="width:60px;height:40px;border:1.5px solid var(--border);border-radius:8px;padding:3px;cursor:pointer;">
+      </div>
+
+      <div class="form-section">
+        <label class="form-label">Dot style</label>
+        <select id="bulk-dot" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem;font-family:inherit;">
+          <option value="square">Square</option>
+          <option value="rounded">Rounded</option>
+          <option value="circle">Circle</option>
+          <option value="gapped">Gapped</option>
+          <option value="vertical">Vertical bars</option>
+          <option value="horizontal">Horizontal bars</option>
+        </select>
+      </div>
+
+      <div class="form-section">
+        <label class="form-label">Corner style</label>
+        <select id="bulk-eye" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem;font-family:inherit;">
+          <option value="square">Square</option>
+          <option value="rounded">Rounded</option>
+          <option value="circle">Circle</option>
+        </select>
+      </div>
+
+      <div class="form-section">
+        <label class="form-label">Container shape</label>
+        <select id="bulk-container" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem;font-family:inherit;">
+          <option value="square">Square</option>
+          <option value="rounded">Rounded</option>
+          <option value="circle">Circle</option>
+        </select>
+      </div>
+
+      <button id="bulk-generate" class="btn-primary" style="width:100%;margin-top:10px;">📊 Generate &amp; Download ZIP</button>
+      <div id="bulk-status" style="margin-top:12px;font-size:.85rem;display:none;padding:10px 14px;border-radius:8px;"></div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+document.getElementById('bulk-generate').addEventListener('click', async () => {
+  const fileInput = document.getElementById('bulk-file');
+  const status = document.getElementById('bulk-status');
+  const btn = document.getElementById('bulk-generate');
+  if (!fileInput.files || !fileInput.files[0]) {
+    status.style.display = 'block';
+    status.style.background = '#fef2f2';
+    status.style.color = '#991b1b';
+    status.textContent = '❌ Please select a CSV or Excel file first.';
+    return;
+  }
+  const fd = new FormData();
+  fd.append('file', fileInput.files[0]);
+  fd.append('fg_color', document.getElementById('bulk-fg').value);
+  fd.append('bg_color', document.getElementById('bulk-bg').value);
+  fd.append('dot_style', document.getElementById('bulk-dot').value);
+  fd.append('eye_style', document.getElementById('bulk-eye').value);
+  fd.append('container_shape', document.getElementById('bulk-container').value);
+  btn.disabled = true; btn.textContent = 'Generating…';
+  status.style.display = 'block';
+  status.style.background = '#f0fdfa';
+  status.style.color = '#0f766e';
+  status.textContent = '⏳ Generating QR codes — this can take a moment…';
+  try {
+    const res = await fetch('/api/qr/bulk', { method: 'POST', body: fd });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || 'Bulk generation failed');
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'forge-qr-bulk.zip';
+    document.body.appendChild(a); a.click(); a.remove();
+    status.style.background = '#f0fdf4';
+    status.style.color = '#166534';
+    status.textContent = '✅ ZIP downloaded! Check your downloads folder.';
+  } catch (e) {
+    status.style.background = '#fef2f2';
+    status.style.color = '#991b1b';
+    status.textContent = '❌ ' + e.message;
+  } finally {
+    btn.disabled = false; btn.textContent = '📊 Generate & Download ZIP';
+  }
+});
+</script>
+<footer>
+  <p>Forge QR &mdash; Free QR code generator &mdash; No account required</p>
+  <p style="margin:8px 0;display:flex;flex-wrap:wrap;justify-content:center;gap:16px;">
+    <a href="/ai-qr" style="color:#94a3b8;font-size:.82rem;text-decoration:none;">✨ AI Art QR</a>
+    <a href="/guide" style="color:#94a3b8;font-size:.82rem;text-decoration:none;">📖 Marketing Guide</a>
+    <a href="/faq" style="color:#94a3b8;font-size:.82rem;text-decoration:none;">FAQ</a>
+    <a href="/about" style="color:#94a3b8;font-size:.82rem;text-decoration:none;">About</a>
+    <a href="/contact" style="color:#94a3b8;font-size:.82rem;text-decoration:none;">Contact</a>
+    <a href="/privacy" style="color:#94a3b8;font-size:.82rem;text-decoration:none;">Privacy Policy</a>
+  </p>
+  <p class="visitor-count">👁 {{ visitor_count | int }} visitors</p>
+</footer>
+
+<script src="/static/js/app.js"></script>
+{% include "feedback_widget.html" %}
+</body>
+</html>
