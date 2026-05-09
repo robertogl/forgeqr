@@ -72,10 +72,12 @@
     .prompt-hints { display:flex; flex-wrap:wrap; gap:5px; margin-top:6px; }
     .hint-chip { background:#f1f5f9; border:1px solid #e2e8f0; border-radius:99px; padding:2px 9px; font-size:.7rem; color:#64748b; cursor:pointer; }
     .hint-chip:hover { background:#e2e8f0; color:#334155; }
-    .dynamic-toggle { display:flex; align-items:center; gap:8px; background:#f0fdfa; border:1.5px solid #99f6e4; border-radius:8px; padding:9px 12px; margin-top:10px; cursor:pointer; }
-    .dynamic-toggle input { margin:0; width:16px; height:16px; cursor:pointer; }
-    .dynamic-toggle label { font-size:.78rem; color:#0f766e; font-weight:600; cursor:pointer; margin:0; line-height:1.4; }
-    .dynamic-toggle .desc { font-weight:500; color:#0d9488; font-size:.72rem; display:block; margin-top:1px; }
+    .type-tabs { display:flex; gap:6px; max-width:520px; margin:0 auto 28px; padding:5px; background:#fff; border:1.5px solid #e2e8f0; border-radius:12px; box-shadow:0 1px 4px rgba(0,0,0,.05); }
+    .type-tab { flex:1; padding:9px 12px; border:none; background:transparent; border-radius:8px; font-size:.85rem; font-weight:600; color:#64748b; cursor:pointer; font-family:inherit; transition:all .15s; }
+    .type-tab.active { background:linear-gradient(90deg,#0d9488,#0891b2); color:#fff; box-shadow:0 1px 4px rgba(13,148,136,.3); }
+    .type-tab:not(.active):hover { background:#f1f5f9; color:#334155; }
+    .app-fields { display:none; }
+    .app-fields.active { display:block; }
     .manage-info { background:#f0fdf4; border:1.5px solid #86efac; border-radius:8px; padding:10px 12px; margin-top:10px; font-size:.78rem; color:#166534; }
     .manage-info a { color:#0d9488; text-decoration:underline; word-break:break-all; }
     .manage-info strong { display:block; margin-bottom:4px; color:#15803d; }
@@ -103,6 +105,12 @@
     </p>
   </div>
 
+  <div class="type-tabs" role="tablist">
+    <button class="type-tab active" data-type="static">⬛ Static</button>
+    <button class="type-tab" data-type="dynamic">🔄 Dynamic</button>
+    <button class="type-tab" data-type="app">📱 App Store</button>
+  </div>
+
   <div class="methods-grid">
 
     <!-- ── METHOD 1: ControlNet ── -->
@@ -122,9 +130,16 @@
         <div class="empty-msg">Your generated QR code will appear here</div>
       </div>
       <form class="method-form" id="form-controlnet">
-        <div class="form-field">
-          <label for="cn-url">Destination URL</label>
-          <input type="url" id="cn-url" placeholder="https://yourwebsite.com" required>
+        <div class="url-fields-cn">
+          <div class="form-field">
+            <label for="cn-url">Destination URL</label>
+            <input type="url" id="cn-url" placeholder="https://yourwebsite.com">
+          </div>
+        </div>
+        <div class="app-fields" id="app-fields-cn">
+          <div class="form-field"><label for="cn-ios">iOS App Store URL</label><input type="url" id="cn-ios" placeholder="https://apps.apple.com/..."></div>
+          <div class="form-field"><label for="cn-android">Google Play URL</label><input type="url" id="cn-android" placeholder="https://play.google.com/..."></div>
+          <div class="form-field"><label for="cn-fallback">Fallback URL (desktop)</label><input type="url" id="cn-fallback" placeholder="https://yourwebsite.com"></div>
         </div>
         <div class="form-field">
           <label for="cn-prompt">Art prompt</label>
@@ -134,10 +149,6 @@
             <span class="hint-chip" data-target="cn-prompt">Cyberpunk city neon</span>
             <span class="hint-chip" data-target="cn-prompt">Galaxy nebula</span>
           </div>
-        </div>
-        <div class="dynamic-toggle">
-          <input type="checkbox" id="cn-dynamic">
-          <label for="cn-dynamic">Make it dynamic <span class="desc">Track scans and edit destination later</span></label>
         </div>
         <button type="submit" class="gen-btn controlnet" style="margin-top:10px;">✨ Generate ControlNet QR</button>
         <div class="loading-box" id="loading-controlnet">
@@ -169,9 +180,16 @@
         <div class="empty-msg">Your generated QR code will appear here</div>
       </div>
       <form class="method-form" id="form-overlay">
-        <div class="form-field">
-          <label for="ov-url">Destination URL</label>
-          <input type="url" id="ov-url" placeholder="https://yourwebsite.com" required>
+        <div class="url-fields-ov">
+          <div class="form-field">
+            <label for="ov-url">Destination URL</label>
+            <input type="url" id="ov-url" placeholder="https://yourwebsite.com">
+          </div>
+        </div>
+        <div class="app-fields" id="app-fields-ov">
+          <div class="form-field"><label for="ov-ios">iOS App Store URL</label><input type="url" id="ov-ios" placeholder="https://apps.apple.com/..."></div>
+          <div class="form-field"><label for="ov-android">Google Play URL</label><input type="url" id="ov-android" placeholder="https://play.google.com/..."></div>
+          <div class="form-field"><label for="ov-fallback">Fallback URL (desktop)</label><input type="url" id="ov-fallback" placeholder="https://yourwebsite.com"></div>
         </div>
         <div class="form-field">
           <label for="ov-prompt">Art prompt</label>
@@ -238,10 +256,6 @@
             </select>
           </div>
         </div>
-        <div class="dynamic-toggle">
-          <input type="checkbox" id="ov-dynamic">
-          <label for="ov-dynamic">Make it dynamic <span class="desc">Track scans and edit destination later</span></label>
-        </div>
         <button type="submit" class="gen-btn overlay" style="margin-top:10px;">⚡ Generate Fast QR</button>
         <div class="loading-box" id="loading-overlay">
           <div class="spinner"></div>
@@ -279,6 +293,18 @@
 document.querySelectorAll('.hint-chip').forEach(chip => {
   chip.addEventListener('click', () => {
     document.getElementById(chip.dataset.target).value = chip.textContent;
+  });
+});
+
+let currentType = 'static';
+document.querySelectorAll('.type-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentType = tab.dataset.type;
+    const isApp = currentType === 'app';
+    document.querySelectorAll('.url-fields-cn, .url-fields-ov').forEach(el => el.style.display = isApp ? 'none' : 'block');
+    document.querySelectorAll('.app-fields').forEach(el => el.classList.toggle('active', isApp));
   });
 });
 
@@ -340,9 +366,15 @@ document.getElementById('form-controlnet').addEventListener('submit', e => {
   e.preventDefault();
   handleSubmit('controlnet', '/api/ai-qr', () => {
     const fd = new FormData();
-    fd.append('url', document.getElementById('cn-url').value.trim());
     fd.append('prompt', document.getElementById('cn-prompt').value.trim());
-    fd.append('dynamic', document.getElementById('cn-dynamic').checked ? '1' : '0');
+    fd.append('qr_type', currentType);
+    if (currentType === 'app') {
+      fd.append('ios_url', document.getElementById('cn-ios').value.trim());
+      fd.append('android_url', document.getElementById('cn-android').value.trim());
+      fd.append('fallback_url', document.getElementById('cn-fallback').value.trim());
+    } else {
+      fd.append('url', document.getElementById('cn-url').value.trim());
+    }
     return fd;
   });
 });
@@ -351,7 +383,6 @@ document.getElementById('form-overlay').addEventListener('submit', e => {
   e.preventDefault();
   handleSubmit('overlay', '/api/ai-qr-overlay', () => {
     const fd = new FormData();
-    fd.append('url', document.getElementById('ov-url').value.trim());
     fd.append('prompt', document.getElementById('ov-prompt').value.trim());
     fd.append('position', document.getElementById('ov-position').value);
     fd.append('qr_color', document.getElementById('ov-color').value);
@@ -359,7 +390,14 @@ document.getElementById('form-overlay').addEventListener('submit', e => {
     fd.append('eye_style', document.getElementById('ov-eye').value);
     fd.append('qr_size', document.getElementById('ov-size').value);
     fd.append('container_shape', document.getElementById('ov-container').value);
-    fd.append('dynamic', document.getElementById('ov-dynamic').checked ? '1' : '0');
+    fd.append('qr_type', currentType);
+    if (currentType === 'app') {
+      fd.append('ios_url', document.getElementById('ov-ios').value.trim());
+      fd.append('android_url', document.getElementById('ov-android').value.trim());
+      fd.append('fallback_url', document.getElementById('ov-fallback').value.trim());
+    } else {
+      fd.append('url', document.getElementById('ov-url').value.trim());
+    }
     return fd;
   });
 });
