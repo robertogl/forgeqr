@@ -495,6 +495,8 @@ async def generate_ai_qr_overlay(
     eye_style: str = Form("square"),
     qr_size: str = Form("medium"),
     container_shape: str = Form("square"),
+    dynamic: str = Form("0"),
+    db: Session = Depends(get_db),
 ):
     from datetime import datetime as _dt
     from urllib.parse import quote
@@ -504,6 +506,20 @@ async def generate_ai_qr_overlay(
     if now - _ai_qr_cooldown.get(client_ip, 0) < 15:
         raise HTTPException(status_code=429, detail="Please wait 15 seconds between generations")
     _ai_qr_cooldown[client_ip] = now
+
+    is_dynamic = dynamic in ("1", "true", "True")
+    qr_data = url.strip()
+    manage_info = None
+    if is_dynamic:
+        code = _short_code()
+        token = secrets.token_urlsafe(32)
+        db.add(DynamicQR(
+            short_code=code, destination_url=url.strip(),
+            edit_token=token, scan_count=0, created_at=datetime.utcnow(),
+        ))
+        db.commit()
+        qr_data = f"{BASE_URL}/r/{code}"
+        manage_info = {"short_code": code, "manage_url": f"{BASE_URL}/manage/{code}?token={token}", "redirect_url": qr_data}
 
     encoded_prompt = quote(f"square format, vibrant colors, highly detailed, artistic, no text: {prompt.strip()}")
     async with httpx.AsyncClient(timeout=60.0) as client:
@@ -520,7 +536,7 @@ async def generate_ai_qr_overlay(
     drawer_cls = DRAWERS.get(dot_style, SquareModuleDrawer)
     eye_cls = EYE_DRAWERS.get(eye_style, SquareModuleDrawer)
     qr = qrcode.QRCode(version=None, error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=16, border=3)
-    qr.add_data(url.strip())
+    qr.add_data(qr_data)
     qr.make(fit=True)
     # Generate styled QR in grayscale, then recolor to qr_color_rgb
     qr_gray = qr.make_image(image_factory=StyledPilImage, module_drawer=drawer_cls(), eye_drawer=eye_cls()).convert("L")
@@ -553,11 +569,16 @@ async def generate_ai_qr_overlay(
     buf = io.BytesIO()
     result.save(buf, format="PNG")
     buf.seek(0)
+    if manage_info:
+        return {
+            "qr_image": f"data:image/png;base64,{base64.b64encode(buf.read()).decode()}",
+            **manage_info,
+        }
     return Response(content=buf.read(), media_type="image/png")
 
 
 @app.post("/api/ai-qr")
-async def generate_ai_qr(request: Request, url: str = Form(...), prompt: str = Form(...)):
+async def generate_ai_qr(request: Request, url: str = Form(...), prompt: str = Form(...), dynamic: str = Form("0"), db: Session = Depends(get_db)):
     from datetime import datetime as _dt
     import json as _json
 
@@ -567,6 +588,20 @@ async def generate_ai_qr(request: Request, url: str = Form(...), prompt: str = F
         raise HTTPException(status_code=429, detail="Please wait 40 seconds between generations")
     _ai_qr_cooldown[client_ip] = now
 
+    is_dynamic = dynamic in ("1", "true", "True")
+    qr_data = url.strip()
+    manage_info = None
+    if is_dynamic:
+        code = _short_code()
+        token = secrets.token_urlsafe(32)
+        db.add(DynamicQR(
+            short_code=code, destination_url=url.strip(),
+            edit_token=token, scan_count=0, created_at=datetime.utcnow(),
+        ))
+        db.commit()
+        qr_data = f"{BASE_URL}/r/{code}"
+        manage_info = {"short_code": code, "manage_url": f"{BASE_URL}/manage/{code}?token={token}", "redirect_url": qr_data}
+
     import asyncio
     from gradio_client import Client as GradioClient
 
@@ -575,7 +610,7 @@ async def generate_ai_qr(request: Request, url: str = Form(...), prompt: str = F
         with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
             gc = GradioClient("huggingface-projects/QR-code-AI-art-generator")
             return gc.predict(
-                qr_code_content=url.strip(),
+                qr_code_content=qr_data,
                 prompt=prompt.strip(),
                 negative_prompt="ugly, disfigured, low quality, blurry, nsfw",
                 guidance_scale=7.5,
@@ -599,6 +634,11 @@ async def generate_ai_qr(request: Request, url: str = Form(...), prompt: str = F
     buf = io.BytesIO()
     result.save(buf, format="PNG")
     buf.seek(0)
+    if manage_info:
+        return {
+            "qr_image": f"data:image/png;base64,{base64.b64encode(buf.read()).decode()}",
+            **manage_info,
+        }
     return Response(content=buf.read(), media_type="image/png")
 
 

@@ -72,6 +72,13 @@
     .prompt-hints { display:flex; flex-wrap:wrap; gap:5px; margin-top:6px; }
     .hint-chip { background:#f1f5f9; border:1px solid #e2e8f0; border-radius:99px; padding:2px 9px; font-size:.7rem; color:#64748b; cursor:pointer; }
     .hint-chip:hover { background:#e2e8f0; color:#334155; }
+    .dynamic-toggle { display:flex; align-items:center; gap:8px; background:#f0fdfa; border:1.5px solid #99f6e4; border-radius:8px; padding:9px 12px; margin-top:10px; cursor:pointer; }
+    .dynamic-toggle input { margin:0; width:16px; height:16px; cursor:pointer; }
+    .dynamic-toggle label { font-size:.78rem; color:#0f766e; font-weight:600; cursor:pointer; margin:0; line-height:1.4; }
+    .dynamic-toggle .desc { font-weight:500; color:#0d9488; font-size:.72rem; display:block; margin-top:1px; }
+    .manage-info { background:#f0fdf4; border:1.5px solid #86efac; border-radius:8px; padding:10px 12px; margin-top:10px; font-size:.78rem; color:#166534; }
+    .manage-info a { color:#0d9488; text-decoration:underline; word-break:break-all; }
+    .manage-info strong { display:block; margin-bottom:4px; color:#15803d; }
   </style>
 </head>
 <body>
@@ -128,7 +135,11 @@
             <span class="hint-chip" data-target="cn-prompt">Galaxy nebula</span>
           </div>
         </div>
-        <button type="submit" class="gen-btn controlnet">✨ Generate ControlNet QR</button>
+        <div class="dynamic-toggle">
+          <input type="checkbox" id="cn-dynamic">
+          <label for="cn-dynamic">Make it dynamic <span class="desc">Track scans and edit destination later</span></label>
+        </div>
+        <button type="submit" class="gen-btn controlnet" style="margin-top:10px;">✨ Generate ControlNet QR</button>
         <div class="loading-box" id="loading-controlnet">
           <div class="spinner"></div>
           <p>Generating — this can take up to 90 seconds…</p>
@@ -227,7 +238,11 @@
             </select>
           </div>
         </div>
-        <button type="submit" class="gen-btn overlay" style="margin-top:6px;">⚡ Generate Fast QR</button>
+        <div class="dynamic-toggle">
+          <input type="checkbox" id="ov-dynamic">
+          <label for="ov-dynamic">Make it dynamic <span class="desc">Track scans and edit destination later</span></label>
+        </div>
+        <button type="submit" class="gen-btn overlay" style="margin-top:10px;">⚡ Generate Fast QR</button>
         <div class="loading-box" id="loading-overlay">
           <div class="spinner"></div>
           <p>Generating image — about 10–15 seconds…</p>
@@ -287,6 +302,7 @@ async function handleSubmit(method, endpoint, getFormData) {
   err.classList.remove('show');
   actions.style.display = 'none';
   slot.innerHTML = '<div class="empty-msg">Generating…</div>';
+  document.querySelectorAll(`#form-${method} .manage-info`).forEach(el => el.remove());
 
   try {
     const res = await fetch(endpoint, { method: 'POST', body: getFormData() });
@@ -294,10 +310,21 @@ async function handleSubmit(method, endpoint, getFormData) {
       const msg = await res.json().catch(() => ({}));
       throw new Error(msg.detail || 'Generation failed');
     }
-    const blob = await res.blob();
-    const blobUrl = URL.createObjectURL(blob);
-    slot.innerHTML = `<img src="${blobUrl}" alt="Generated QR">`;
-    dl.href = blobUrl;
+    const ct = res.headers.get('content-type') || '';
+    let imgUrl;
+    if (ct.includes('application/json')) {
+      const data = await res.json();
+      imgUrl = data.qr_image;
+      const info = document.createElement('div');
+      info.className = 'manage-info';
+      info.innerHTML = `<strong>✓ Dynamic QR created — save this manage link!</strong>You can change the destination URL and view scan stats anytime:<br><a href="${data.manage_url}" target="_blank">${data.manage_url}</a>`;
+      form.appendChild(info);
+    } else {
+      const blob = await res.blob();
+      imgUrl = URL.createObjectURL(blob);
+    }
+    slot.innerHTML = `<img src="${imgUrl}" alt="Generated QR">`;
+    dl.href = imgUrl;
     actions.style.display = 'flex';
   } catch (e) {
     err.textContent = '❌ ' + e.message;
@@ -315,6 +342,7 @@ document.getElementById('form-controlnet').addEventListener('submit', e => {
     const fd = new FormData();
     fd.append('url', document.getElementById('cn-url').value.trim());
     fd.append('prompt', document.getElementById('cn-prompt').value.trim());
+    fd.append('dynamic', document.getElementById('cn-dynamic').checked ? '1' : '0');
     return fd;
   });
 });
@@ -331,6 +359,7 @@ document.getElementById('form-overlay').addEventListener('submit', e => {
     fd.append('eye_style', document.getElementById('ov-eye').value);
     fd.append('qr_size', document.getElementById('ov-size').value);
     fd.append('container_shape', document.getElementById('ov-container').value);
+    fd.append('dynamic', document.getElementById('ov-dynamic').checked ? '1' : '0');
     return fd;
   });
 });
