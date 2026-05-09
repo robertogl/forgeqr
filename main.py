@@ -487,61 +487,64 @@ async def guide(request: Request):
 @app.post("/api/ai-qr")
 async def generate_ai_qr(request: Request, url: str = Form(...), prompt: str = Form(...)):
     from datetime import datetime as _dt
-    from urllib.parse import quote
-    from PIL import ImageChops, ImageEnhance
+    import json as _json
 
     client_ip = request.client.host
     now = _dt.now().timestamp()
-    if now - _ai_qr_cooldown.get(client_ip, 0) < 35:
-        raise HTTPException(status_code=429, detail="Please wait 35 seconds between generations")
+    if now - _ai_qr_cooldown.get(client_ip, 0) < 40:
+        raise HTTPException(status_code=429, detail="Please wait 40 seconds between generations")
     _ai_qr_cooldown[client_ip] = now
 
-    # Generate AI background at 1024x1024
-    encoded_prompt = quote(f"square format, vibrant colors, highly detailed, artistic, no text: {prompt.strip()}")
-    async with httpx.AsyncClient(timeout=60.0) as client:
-        resp = await client.get(
-            f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=1024&nologo=true&model=flux",
-            follow_redirects=True,
+    base_url = "https://huggingface-projects-qr-code-ai-art-generator.hf.space"
+
+    async with httpx.AsyncClient(timeout=120.0) as client:
+        # Step 1: submit job
+        start = await client.post(
+            f"{base_url}/call/inference",
+            json={"data": [
+                prompt.strip(),
+                url.strip(),
+                "ugly, disfigured, low quality, blurry, nsfw",
+                7.5,   # guidance_scale
+                1.5,   # controlnet_conditioning_scale
+                0.9,   # strength
+                None,  # init_image
+                None,  # qrcode_image
+                True,  # use_qr_code_as_init_image
+                "DPM++ Karras SDE",
+                -1,    # random seed
+            ]},
         )
+        if start.status_code != 200:
+            raise HTTPException(status_code=502, detail=f"Failed to start generation: {start.text[:200]}")
 
-    if resp.status_code != 200:
-        raise HTTPException(status_code=502, detail="Image generation failed — try again")
+        event_id = start.json().get("event_id")
+        if not event_id:
+            raise HTTPException(status_code=502, detail="No event_id returned")
 
-    # Generate QR code and resize to match canvas
-    qr = qrcode.QRCode(version=None, error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=12, border=4)
-    qr.add_data(url.strip())
-    qr.make(fit=True)
-    qr_img = qr.make_image(fill_color="black", back_color="white").convert("L")
+        # Step 2: stream result
+        image_url = None
+        async with client.stream("GET", f"{base_url}/call/inference/{event_id}") as stream:
+            async for line in stream.aiter_lines():
+                if line.startswith("data:"):
+                    data_str = line[5:].strip()
+                    try:
+                        data = _json.loads(data_str)
+                        if isinstance(data, list) and data:
+                            image_url = data[0].get("url") or data[0].get("path")
+                            break
+                    except Exception:
+                        continue
 
-    import colorsys
-    ai_img = Image.open(io.BytesIO(resp.content)).convert("RGB")
-    ai_img = ImageEnhance.Color(ai_img).enhance(1.4)
-    size = qr_img.size[0]
-    ai_img = ai_img.resize((size, size), Image.LANCZOS)
+        if not image_url:
+            raise HTTPException(status_code=502, detail="No image returned — the space may be sleeping, try again in 30 seconds")
 
-    # Extract dominant hue from AI image via quantization
-    small = ai_img.resize((50, 50), Image.LANCZOS)
-    palette = small.quantize(colors=6).getpalette()[:18]
-    colors = [(palette[i*3], palette[i*3+1], palette[i*3+2]) for i in range(6)]
-    dominant = max(colors, key=lambda c: colorsys.rgb_to_hsv(c[0]/255, c[1]/255, c[2]/255)[1])
-    h, s, _ = colorsys.rgb_to_hsv(dominant[0]/255, dominant[1]/255, dominant[2]/255)
+        # Step 3: download the result image
+        if not image_url.startswith("http"):
+            image_url = f"{base_url}/file={image_url}"
+        img_resp = await client.get(image_url)
 
-    # Dark module color: same hue, rich saturation, low brightness (~22%) — always dark enough to scan
-    if s < 0.1:
-        dark_color = (20, 20, 20)  # grayscale fallback
-    else:
-        dr, dg, db = colorsys.hsv_to_rgb(h, min(s + 0.3, 1.0), 0.22)
-        dark_color = (int(dr*255), int(dg*255), int(db*255))
-
-    # Brighten AI image for light areas — strong contrast against dark modules
-    ai_bright = ImageEnhance.Brightness(ai_img).enhance(1.5).convert("RGBA")
-
-    # Colored overlay applied only to dark modules
-    dark_alpha = qr_img.point(lambda x: 0 if x > 128 else 242)
-    colored_layer = Image.new("RGBA", (size, size), dark_color + (255,))
-    colored_layer.putalpha(dark_alpha)
-
-    result = Image.alpha_composite(ai_bright, colored_layer).convert("RGB")
+    result = Image.open(io.BytesIO(img_resp.content)).convert("RGB")
 
     buf = io.BytesIO()
     result.save(buf, format="PNG")
