@@ -494,6 +494,7 @@ async def generate_ai_qr_overlay(
     dot_style: str = Form("square"),
     eye_style: str = Form("square"),
     qr_size: str = Form("medium"),
+    container_shape: str = Form("square"),
 ):
     from datetime import datetime as _dt
     from urllib.parse import quote
@@ -534,6 +535,8 @@ async def generate_ai_qr_overlay(
     pad = 12
     padded = Image.new("RGBA", (qr_img.width + pad * 2, qr_img.height + pad * 2), (255, 255, 255, 255))
     padded.paste(qr_img, (pad, pad))
+    if container_shape != "square":
+        padded = _apply_container_shape(padded, container_shape, (255, 255, 255))
 
     margin = 30
     positions = {
