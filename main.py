@@ -484,6 +484,63 @@ async def guide(request: Request):
     return templates.TemplateResponse("guide.html", {"request": request})
 
 
+@app.post("/api/ai-qr-overlay")
+async def generate_ai_qr_overlay(
+    request: Request,
+    url: str = Form(...),
+    prompt: str = Form(...),
+    position: str = Form("bottom-right"),
+    qr_color: str = Form("#000000"),
+):
+    from datetime import datetime as _dt
+    from urllib.parse import quote
+
+    client_ip = request.client.host
+    now = _dt.now().timestamp()
+    if now - _ai_qr_cooldown.get(client_ip, 0) < 15:
+        raise HTTPException(status_code=429, detail="Please wait 15 seconds between generations")
+    _ai_qr_cooldown[client_ip] = now
+
+    encoded_prompt = quote(f"square format, vibrant colors, highly detailed, artistic, no text: {prompt.strip()}")
+    async with httpx.AsyncClient(timeout=60.0) as client:
+        resp = await client.get(
+            f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=1024&nologo=true&model=flux",
+            follow_redirects=True,
+        )
+    if resp.status_code != 200:
+        raise HTTPException(status_code=502, detail="Image generation failed — try again")
+
+    background = Image.open(io.BytesIO(resp.content)).convert("RGBA")
+
+    qr_color_rgb = _hex_to_rgb(qr_color)
+    qr = qrcode.QRCode(version=None, error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=8, border=3)
+    qr.add_data(url.strip())
+    qr.make(fit=True)
+    qr_img = qr.make_image(fill_color=qr_color_rgb, back_color="white").convert("RGBA")
+    qr_img = qr_img.resize((240, 240), Image.LANCZOS)
+
+    pad = 12
+    padded = Image.new("RGBA", (qr_img.width + pad * 2, qr_img.height + pad * 2), (255, 255, 255, 255))
+    padded.paste(qr_img, (pad, pad))
+
+    margin = 30
+    positions = {
+        "top-left": (margin, margin),
+        "top-right": (background.width - padded.width - margin, margin),
+        "bottom-left": (margin, background.height - padded.height - margin),
+        "bottom-right": (background.width - padded.width - margin, background.height - padded.height - margin),
+        "center": ((background.width - padded.width) // 2, (background.height - padded.height) // 2),
+    }
+    pos = positions.get(position, positions["bottom-right"])
+    background.paste(padded, pos, padded)
+    result = background.convert("RGB")
+
+    buf = io.BytesIO()
+    result.save(buf, format="PNG")
+    buf.seek(0)
+    return Response(content=buf.read(), media_type="image/png")
+
+
 @app.post("/api/ai-qr")
 async def generate_ai_qr(request: Request, url: str = Form(...), prompt: str = Form(...)):
     from datetime import datetime as _dt
@@ -499,15 +556,23 @@ async def generate_ai_qr(request: Request, url: str = Form(...), prompt: str = F
     from gradio_client import Client as GradioClient
 
     def _call_space():
-        gc = GradioClient("huggingface-projects/QR-code-AI-art-generator")
-        return gc.predict(
-            qr_code_content=url.strip(),
-            prompt=prompt.strip(),
-            negative_prompt="ugly, disfigured, low quality, blurry, nsfw",
-            guidance_scale=7.5,
-            controlnet_conditioning_scale=1.5,
-            api_name="/predict",
-        )
+        import contextlib
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+            gc = GradioClient("huggingface-projects/QR-code-AI-art-generator")
+            return gc.predict(
+                qr_code_content=url.strip(),
+                prompt=prompt.strip(),
+                negative_prompt="ugly, disfigured, low quality, blurry, nsfw",
+                guidance_scale=7.5,
+                controlnet_conditioning_scale=1.5,
+                strength=0.9,
+                seed=-1,
+                init_image=None,
+                qrcode_image=None,
+                use_qr_code_as_init_image=True,
+                sampler="DPM++ Karras SDE",
+                api_name="/inference",
+            )
 
     try:
         result_path = await asyncio.get_event_loop().run_in_executor(None, _call_space)

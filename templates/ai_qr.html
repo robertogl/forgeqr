@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Art QR Code Generator — Forge QR</title>
-  <meta name="description" content="Generate stunning AI-art QR codes for free. Enter a prompt and a URL to create a scannable QR code that looks like a painting or illustration.">
+  <meta name="description" content="Generate stunning AI-art QR codes for free. Two methods: true ControlNet integration or fast AI background with QR overlay.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://forgeqrcode.com/ai-qr">
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('consent','default',{analytics_storage:'denied',ad_storage:'denied',wait_for_update:500});</script>
@@ -16,97 +16,173 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/style.css">
   <style>
-    .ai-hero { background:linear-gradient(135deg,#0f172a,#1e3a5f); color:#fff; padding:52px 24px; text-align:center; }
+    .ai-hero { background:linear-gradient(135deg,#0f172a,#1e3a5f); color:#fff; padding:48px 24px; text-align:center; }
     .ai-hero h1 { font-size:2rem; margin:0 0 10px; }
-    .ai-hero p { color:#94a3b8; font-size:.95rem; max-width:500px; margin:0 auto; line-height:1.7; }
+    .ai-hero p { color:#94a3b8; font-size:.95rem; max-width:560px; margin:0 auto; line-height:1.7; }
     .ai-badge { display:inline-block; background:linear-gradient(90deg,#0d9488,#0891b2); color:#fff; font-size:.72rem; font-weight:700; padding:4px 12px; border-radius:99px; letter-spacing:.05em; margin-bottom:16px; }
-    .ai-body { max-width:680px; margin:0 auto; padding:40px 24px 64px; }
-    .ai-card { background:#fff; border-radius:16px; padding:32px; box-shadow:0 2px 16px rgba(0,0,0,.08); border:1.5px solid #e2e8f0; }
-    .form-field { margin-bottom:18px; }
-    .form-field label { display:block; font-size:.82rem; font-weight:600; color:var(--text); margin-bottom:5px; }
-    .form-field input, .form-field textarea {
+    .ai-body { max-width:1180px; margin:0 auto; padding:32px 24px 64px; }
+    .methods-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(420px,1fr)); gap:24px; }
+    .method-card { background:#fff; border-radius:16px; box-shadow:0 2px 16px rgba(0,0,0,.08); border:1.5px solid #e2e8f0; overflow:hidden; }
+    .method-header { padding:20px 24px 16px; }
+    .method-header h2 { font-size:1.15rem; font-weight:700; color:#1e293b; margin:0 0 6px; display:flex; align-items:center; gap:8px; }
+    .method-tag { font-size:.7rem; font-weight:700; padding:3px 9px; border-radius:99px; text-transform:uppercase; letter-spacing:.05em; }
+    .tag-slow { background:#fef3c7; color:#92400e; }
+    .tag-fast { background:#dcfce7; color:#166534; }
+    .pros-cons { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 24px 16px; }
+    .pc-box { background:#f8fafc; border-radius:8px; padding:10px 12px; font-size:.78rem; line-height:1.5; color:#475569; }
+    .pc-box strong { display:block; font-size:.7rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:3px; }
+    .pc-box.pros strong { color:#15803d; }
+    .pc-box.cons strong { color:#b91c1c; }
+    .example-img { width:100%; aspect-ratio:1; background:#f1f5f9; border-top:1.5px solid #e2e8f0; border-bottom:1.5px solid #e2e8f0; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+    .example-img img { width:100%; height:100%; object-fit:cover; }
+    .example-img .placeholder { color:#94a3b8; font-size:.78rem; text-align:center; padding:16px; }
+    .method-form { padding:18px 24px 22px; }
+    .form-field { margin-bottom:14px; }
+    .form-field label { display:block; font-size:.78rem; font-weight:600; color:#334155; margin-bottom:4px; }
+    .form-field input, .form-field textarea, .form-field select {
       width:100%; box-sizing:border-box; border:1.5px solid #e2e8f0;
-      border-radius:8px; padding:10px 13px; font-size:.875rem;
+      border-radius:8px; padding:9px 12px; font-size:.85rem;
       font-family:inherit; outline:none; transition:border-color .2s;
     }
-    .form-field input:focus, .form-field textarea:focus { border-color:#0d9488; }
-    .form-field textarea { resize:vertical; min-height:80px; }
-    .prompt-hints { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
-    .hint-chip { background:#f1f5f9; border:1px solid #e2e8f0; border-radius:99px; padding:3px 10px; font-size:.75rem; color:#64748b; cursor:pointer; transition:background .15s; }
-    .hint-chip:hover { background:#e2e8f0; color:#334155; }
-    #ai-generate-btn { width:100%; padding:13px; border-radius:10px; border:none; background:linear-gradient(90deg,#0d9488,#0891b2); color:#fff; font-size:.95rem; font-weight:700; cursor:pointer; transition:opacity .2s; }
-    #ai-generate-btn:disabled { opacity:.6; cursor:not-allowed; }
-    #ai-result { display:none; margin-top:28px; text-align:center; }
-    #ai-result img { width:100%; max-width:400px; border-radius:12px; box-shadow:0 4px 24px rgba(0,0,0,.15); }
-    #ai-result .result-actions { display:flex; gap:10px; justify-content:center; margin-top:16px; flex-wrap:wrap; }
-    #ai-error { display:none; margin-top:14px; background:#fef2f2; color:#991b1b; border-radius:8px; padding:10px 14px; font-size:.85rem; }
-    #ai-loading { display:none; margin-top:20px; text-align:center; }
-    .spinner { width:36px; height:36px; border:3px solid #e2e8f0; border-top-color:#0d9488; border-radius:50%; animation:spin .8s linear infinite; margin:0 auto 10px; }
+    .form-field input:focus, .form-field textarea:focus, .form-field select:focus { border-color:#0d9488; }
+    .form-field textarea { resize:vertical; min-height:60px; }
+    .field-row { display:grid; grid-template-columns:1fr auto; gap:10px; }
+    .color-input { width:54px !important; height:38px; padding:3px !important; cursor:pointer; }
+    .gen-btn { width:100%; padding:11px; border-radius:9px; border:none; color:#fff; font-size:.9rem; font-weight:700; cursor:pointer; transition:opacity .2s; }
+    .gen-btn:disabled { opacity:.6; cursor:not-allowed; }
+    .gen-btn.controlnet { background:linear-gradient(90deg,#7c3aed,#0891b2); }
+    .gen-btn.overlay { background:linear-gradient(90deg,#0d9488,#0891b2); }
+    .result-area { display:none; padding:18px 24px 22px; border-top:1.5px solid #e2e8f0; text-align:center; }
+    .result-area.show { display:block; }
+    .result-area img { width:100%; max-width:340px; border-radius:10px; box-shadow:0 4px 20px rgba(0,0,0,.12); }
+    .result-actions { display:flex; gap:8px; justify-content:center; margin-top:12px; flex-wrap:wrap; }
+    .download-btn { padding:8px 18px; border-radius:8px; font-size:.82rem; font-weight:600; text-decoration:none; background:#0d9488; color:#fff; }
+    .again-btn { padding:8px 18px; border-radius:8px; font-size:.82rem; font-weight:600; border:none; background:#f1f5f9; color:#334155; cursor:pointer; }
+    .err-box { display:none; margin-top:12px; background:#fef2f2; color:#991b1b; border-radius:8px; padding:9px 12px; font-size:.8rem; }
+    .err-box.show { display:block; }
+    .loading-box { display:none; margin-top:14px; text-align:center; }
+    .loading-box.show { display:block; }
+    .spinner { width:30px; height:30px; border:3px solid #e2e8f0; border-top-color:#0d9488; border-radius:50%; animation:spin .8s linear infinite; margin:0 auto 8px; }
     @keyframes spin { to { transform:rotate(360deg); } }
-    #ai-loading p { font-size:.85rem; color:#64748b; }
-    .how-it-works { margin-top:36px; }
-    .how-it-works h3 { font-size:.95rem; font-weight:700; color:var(--text); margin:0 0 14px; }
-    .steps-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; }
-    .step-card { background:#f8fafc; border-radius:10px; padding:14px; }
-    .step-card .step-num { font-size:.7rem; font-weight:700; color:#0d9488; text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px; }
-    .step-card p { font-size:.8rem; color:#64748b; margin:0; line-height:1.5; }
+    .loading-box p { font-size:.78rem; color:#64748b; margin:0; }
+    .prompt-hints { display:flex; flex-wrap:wrap; gap:5px; margin-top:6px; }
+    .hint-chip { background:#f1f5f9; border:1px solid #e2e8f0; border-radius:99px; padding:2px 9px; font-size:.7rem; color:#64748b; cursor:pointer; }
+    .hint-chip:hover { background:#e2e8f0; color:#334155; }
   </style>
 </head>
 <body>
 
 <div class="ai-hero">
-  <div class="ai-badge">✨ New — AI Powered</div>
+  <div class="ai-badge">✨ AI Powered</div>
   <h1>AI Art QR Code Generator</h1>
-  <p>Enter a URL and a creative prompt. Forge QR will generate a stunning AI image and blend it into a fully scannable QR code.</p>
+  <p>Two methods to create AI-powered QR codes. Pick the one that fits your needs.</p>
 </div>
 
 <div class="ai-body">
-  <div class="ai-card">
-    <form id="ai-qr-form">
-      <div class="form-field">
-        <label for="ai-url">Destination URL</label>
-        <input type="url" id="ai-url" placeholder="https://yourwebsite.com" required>
+  <div class="methods-grid">
+
+    <!-- ── METHOD 1: ControlNet ── -->
+    <div class="method-card">
+      <div class="method-header">
+        <h2>🎨 ControlNet AI <span class="method-tag tag-slow">Slow · Limited</span></h2>
+        <p style="font-size:.82rem;color:#64748b;margin:0;line-height:1.5;">The AI generates the image <em>around</em> the QR pattern — fully integrated artistic result.</p>
       </div>
-      <div class="form-field">
-        <label for="ai-prompt">Art style / prompt</label>
-        <textarea id="ai-prompt" placeholder="e.g. a misty Japanese forest at dawn, watercolor style" required></textarea>
-        <div class="prompt-hints">
-          <span class="hint-chip">🌸 Japanese forest at dawn</span>
-          <span class="hint-chip">🌊 Ocean waves, ukiyo-e</span>
-          <span class="hint-chip">🌌 Galaxy nebula, deep space</span>
-          <span class="hint-chip">🏙️ Cyberpunk city at night</span>
-          <span class="hint-chip">🌿 Tropical jungle, lush green</span>
-          <span class="hint-chip">🎨 Abstract colourful geometry</span>
+      <div class="pros-cons">
+        <div class="pc-box pros"><strong>✓ Pros</strong>Truly artistic, image and QR are one</div>
+        <div class="pc-box cons"><strong>✗ Cons</strong>Slow (30–90s), free GPU may queue</div>
+      </div>
+      <div class="example-img">
+        <img src="/static/example-controlnet.png" alt="ControlNet example" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\'placeholder\'>Example will appear here after first generation</div>'">
+      </div>
+      <form class="method-form" id="form-controlnet">
+        <div class="form-field">
+          <label for="cn-url">Destination URL</label>
+          <input type="url" id="cn-url" placeholder="https://yourwebsite.com" required>
+        </div>
+        <div class="form-field">
+          <label for="cn-prompt">Art prompt</label>
+          <textarea id="cn-prompt" placeholder="e.g. a misty Japanese forest at dawn" required></textarea>
+          <div class="prompt-hints">
+            <span class="hint-chip" data-target="cn-prompt">Japanese forest at dawn</span>
+            <span class="hint-chip" data-target="cn-prompt">Cyberpunk city neon</span>
+            <span class="hint-chip" data-target="cn-prompt">Galaxy nebula</span>
+          </div>
+        </div>
+        <button type="submit" class="gen-btn controlnet">✨ Generate ControlNet QR</button>
+        <div class="loading-box" id="loading-controlnet">
+          <div class="spinner"></div>
+          <p>Generating — this can take up to 90 seconds…</p>
+        </div>
+        <div class="err-box" id="err-controlnet"></div>
+      </form>
+      <div class="result-area" id="result-controlnet">
+        <img id="img-controlnet" src="" alt="Generated ControlNet QR">
+        <div class="result-actions">
+          <a id="dl-controlnet" href="#" download="forge-ai-qr.png" class="download-btn">⬇ Download</a>
+          <button class="again-btn" onclick="resetMethod('controlnet')">Generate another</button>
         </div>
       </div>
-      <button type="submit" id="ai-generate-btn">✨ Generate AI QR Code</button>
-    </form>
-
-    <div id="ai-loading">
-      <div class="spinner"></div>
-      <p>Generating your AI QR code — this takes 20–40 seconds…</p>
     </div>
 
-    <div id="ai-error"></div>
-
-    <div id="ai-result">
-      <img id="ai-result-img" src="" alt="AI Art QR Code">
-      <div class="result-actions">
-        <a id="ai-download-btn" href="#" download="forge-ai-qr.png" style="padding:10px 22px;border-radius:9px;font-size:.875rem;font-weight:600;text-decoration:none;background:#0d9488;color:#fff;">⬇ Download PNG</a>
-        <button onclick="document.getElementById('ai-result').style.display='none';document.getElementById('ai-qr-form').style.display='block';" style="padding:10px 22px;border-radius:9px;font-size:.875rem;font-weight:600;border:none;background:#f1f5f9;color:var(--text);cursor:pointer;">Generate another</button>
+    <!-- ── METHOD 2: Overlay ── -->
+    <div class="method-card">
+      <div class="method-header">
+        <h2>🖼️ AI Background + QR <span class="method-tag tag-fast">Fast · Reliable</span></h2>
+        <p style="font-size:.82rem;color:#64748b;margin:0;line-height:1.5;">A clean QR code overlaid on an AI-generated image. Customise position and colour.</p>
       </div>
-      <p style="font-size:.78rem;color:#94a3b8;margin-top:10px;">Always test that the QR scans before printing.</p>
+      <div class="pros-cons">
+        <div class="pc-box pros"><strong>✓ Pros</strong>Fast (10–15s), always works, customisable</div>
+        <div class="pc-box cons"><strong>✗ Cons</strong>QR is a separate overlay, less integrated</div>
+      </div>
+      <div class="example-img">
+        <img src="/static/example-overlay.png" alt="Overlay example" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\'placeholder\'>Example will appear here after first generation</div>'">
+      </div>
+      <form class="method-form" id="form-overlay">
+        <div class="form-field">
+          <label for="ov-url">Destination URL</label>
+          <input type="url" id="ov-url" placeholder="https://yourwebsite.com" required>
+        </div>
+        <div class="form-field">
+          <label for="ov-prompt">Art prompt</label>
+          <textarea id="ov-prompt" placeholder="e.g. a peaceful mountain sunset" required></textarea>
+          <div class="prompt-hints">
+            <span class="hint-chip" data-target="ov-prompt">Mountain sunset</span>
+            <span class="hint-chip" data-target="ov-prompt">Tropical beach</span>
+            <span class="hint-chip" data-target="ov-prompt">Abstract geometry</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="form-field" style="margin:0;">
+            <label for="ov-position">QR position</label>
+            <select id="ov-position">
+              <option value="bottom-right">Bottom right</option>
+              <option value="bottom-left">Bottom left</option>
+              <option value="top-right">Top right</option>
+              <option value="top-left">Top left</option>
+              <option value="center">Center</option>
+            </select>
+          </div>
+          <div class="form-field" style="margin:0;">
+            <label for="ov-color">QR color</label>
+            <input type="color" id="ov-color" class="color-input" value="#000000">
+          </div>
+        </div>
+        <button type="submit" class="gen-btn overlay" style="margin-top:6px;">⚡ Generate Fast QR</button>
+        <div class="loading-box" id="loading-overlay">
+          <div class="spinner"></div>
+          <p>Generating image — about 10–15 seconds…</p>
+        </div>
+        <div class="err-box" id="err-overlay"></div>
+      </form>
+      <div class="result-area" id="result-overlay">
+        <img id="img-overlay" src="" alt="Generated Overlay QR">
+        <div class="result-actions">
+          <a id="dl-overlay" href="#" download="forge-ai-qr.png" class="download-btn">⬇ Download</a>
+          <button class="again-btn" onclick="resetMethod('overlay')">Generate another</button>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <div class="how-it-works">
-    <h3>How it works</h3>
-    <div class="steps-grid">
-      <div class="step-card"><div class="step-num">Step 1</div><p>Enter the URL your QR code should link to</p></div>
-      <div class="step-card"><div class="step-num">Step 2</div><p>Describe the art style or scene you want</p></div>
-      <div class="step-card"><div class="step-num">Step 3</div><p>Gemini AI generates an image matched to your prompt</p></div>
-      <div class="step-card"><div class="step-num">Step 4</div><p>The image is blended into a real, scannable QR code</p></div>
-    </div>
   </div>
 
   <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:32px;">
@@ -130,47 +206,70 @@
 <script>
 document.querySelectorAll('.hint-chip').forEach(chip => {
   chip.addEventListener('click', () => {
-    document.getElementById('ai-prompt').value = chip.textContent.replace(/^.\s/, '');
+    document.getElementById(chip.dataset.target).value = chip.textContent;
   });
 });
 
-document.getElementById('ai-qr-form').addEventListener('submit', async e => {
-  e.preventDefault();
-  const btn = document.getElementById('ai-generate-btn');
-  const loading = document.getElementById('ai-loading');
-  const error = document.getElementById('ai-error');
-  const result = document.getElementById('ai-result');
+function resetMethod(method) {
+  document.getElementById(`result-${method}`).classList.remove('show');
+  document.getElementById(`form-${method}`).style.display = 'block';
+}
+
+async function handleSubmit(method, endpoint, getFormData) {
+  const form = document.getElementById(`form-${method}`);
+  const loading = document.getElementById(`loading-${method}`);
+  const err = document.getElementById(`err-${method}`);
+  const result = document.getElementById(`result-${method}`);
+  const img = document.getElementById(`img-${method}`);
+  const dl = document.getElementById(`dl-${method}`);
+  const btn = form.querySelector('.gen-btn');
 
   btn.disabled = true;
-  btn.textContent = 'Generating…';
-  loading.style.display = 'block';
-  error.style.display = 'none';
-  result.style.display = 'none';
-
-  const fd = new FormData();
-  fd.append('url', document.getElementById('ai-url').value.trim());
-  fd.append('prompt', document.getElementById('ai-prompt').value.trim());
+  loading.classList.add('show');
+  err.classList.remove('show');
+  result.classList.remove('show');
 
   try {
-    const res = await fetch('/api/ai-qr', { method: 'POST', body: fd });
+    const res = await fetch(endpoint, { method: 'POST', body: getFormData() });
     if (!res.ok) {
       const msg = await res.json().catch(() => ({}));
-      throw new Error(msg.detail || 'Generation failed — please try again');
+      throw new Error(msg.detail || 'Generation failed');
     }
     const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    document.getElementById('ai-result-img').src = url;
-    document.getElementById('ai-download-btn').href = url;
-    document.getElementById('ai-qr-form').style.display = 'none';
-    result.style.display = 'block';
-  } catch(err) {
-    error.textContent = '❌ ' + err.message;
-    error.style.display = 'block';
+    const blobUrl = URL.createObjectURL(blob);
+    img.src = blobUrl;
+    dl.href = blobUrl;
+    form.style.display = 'none';
+    result.classList.add('show');
+  } catch (e) {
+    err.textContent = '❌ ' + e.message;
+    err.classList.add('show');
   } finally {
-    loading.style.display = 'none';
+    loading.classList.remove('show');
     btn.disabled = false;
-    btn.textContent = '✨ Generate AI QR Code';
   }
+}
+
+document.getElementById('form-controlnet').addEventListener('submit', e => {
+  e.preventDefault();
+  handleSubmit('controlnet', '/api/ai-qr', () => {
+    const fd = new FormData();
+    fd.append('url', document.getElementById('cn-url').value.trim());
+    fd.append('prompt', document.getElementById('cn-prompt').value.trim());
+    return fd;
+  });
+});
+
+document.getElementById('form-overlay').addEventListener('submit', e => {
+  e.preventDefault();
+  handleSubmit('overlay', '/api/ai-qr-overlay', () => {
+    const fd = new FormData();
+    fd.append('url', document.getElementById('ov-url').value.trim());
+    fd.append('prompt', document.getElementById('ov-prompt').value.trim());
+    fd.append('position', document.getElementById('ov-position').value);
+    fd.append('qr_color', document.getElementById('ov-color').value);
+    return fd;
+  });
 });
 </script>
 
