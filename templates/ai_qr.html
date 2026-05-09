@@ -47,6 +47,7 @@
       border-radius:8px; padding:9px 12px; font-size:.85rem;
       font-family:inherit; outline:none; transition:border-color .2s;
     }
+    .form-field select { font-size:.78rem; padding-right:28px; }
     .form-field input:focus, .form-field textarea:focus, .form-field select:focus { border-color:#0d9488; }
     .form-field textarea { resize:vertical; min-height:60px; }
     .field-row { display:grid; grid-template-columns:1fr auto; gap:10px; }
@@ -186,7 +187,7 @@
             <input type="color" id="ov-color" class="color-input" value="#000000">
           </div>
         </div>
-        <div class="field-row" style="margin-top:8px;">
+        <div class="field-row" style="margin-top:8px;grid-template-columns:1fr 1fr;">
           <div class="form-field" style="margin:0;">
             <label for="ov-dot">Dot style</label>
             <select id="ov-dot">
