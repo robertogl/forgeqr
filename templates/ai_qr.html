@@ -187,7 +187,16 @@
             <input type="color" id="ov-color" class="color-input" value="#000000">
           </div>
         </div>
-        <div class="field-row" style="margin-top:8px;grid-template-columns:1fr 1fr;">
+        <div class="form-field" style="margin-top:8px;">
+          <label for="ov-size">QR size</label>
+          <select id="ov-size">
+            <option value="small">Small</option>
+            <option value="medium" selected>Medium</option>
+            <option value="large">Large</option>
+            <option value="xlarge">Extra large</option>
+          </select>
+        </div>
+        <div class="field-row" style="grid-template-columns:1fr 1fr;">
           <div class="form-field" style="margin:0;">
             <label for="ov-dot">Dot style</label>
             <select id="ov-dot">
@@ -310,6 +319,7 @@ document.getElementById('form-overlay').addEventListener('submit', e => {
     fd.append('qr_color', document.getElementById('ov-color').value);
     fd.append('dot_style', document.getElementById('ov-dot').value);
     fd.append('eye_style', document.getElementById('ov-eye').value);
+    fd.append('qr_size', document.getElementById('ov-size').value);
     return fd;
   });
 });

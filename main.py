@@ -493,6 +493,7 @@ async def generate_ai_qr_overlay(
     qr_color: str = Form("#000000"),
     dot_style: str = Form("square"),
     eye_style: str = Form("square"),
+    qr_size: str = Form("medium"),
 ):
     from datetime import datetime as _dt
     from urllib.parse import quote
@@ -526,7 +527,9 @@ async def generate_ai_qr_overlay(
     bg_layer = Image.new("RGBA", qr_gray.size, (255, 255, 255, 255))
     mask = qr_gray.point(lambda p: 255 if p < 128 else 0)
     bg_layer.paste(fg_layer, mask=mask)
-    qr_img = bg_layer.resize((380, 380), Image.LANCZOS)
+    size_map = {"small": 240, "medium": 320, "large": 420, "xlarge": 520}
+    target_qr_size = size_map.get(qr_size, 320)
+    qr_img = bg_layer.resize((target_qr_size, target_qr_size), Image.LANCZOS)
 
     pad = 12
     padded = Image.new("RGBA", (qr_img.width + pad * 2, qr_img.height + pad * 2), (255, 255, 255, 255))
