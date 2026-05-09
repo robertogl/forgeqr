@@ -495,60 +495,32 @@ async def generate_ai_qr(request: Request, url: str = Form(...), prompt: str = F
         raise HTTPException(status_code=429, detail="Please wait 40 seconds between generations")
     _ai_qr_cooldown[client_ip] = now
 
-    base_url = "https://huggingface-projects-qr-code-ai-art-generator.hf.space"
+    import asyncio
+    from gradio_client import Client as GradioClient
 
-    async with httpx.AsyncClient(timeout=120.0) as client:
-        # Step 1: submit job
-        start = await client.post(
-            f"{base_url}/call/inference",
-            json={"data": [
-                prompt.strip(),
-                url.strip(),
-                "ugly, disfigured, low quality, blurry, nsfw",
-                7.5,   # guidance_scale
-                1.5,   # controlnet_conditioning_scale
-                0.9,   # strength
-                None,  # init_image
-                None,  # qrcode_image
-                True,  # use_qr_code_as_init_image
-                "DPM++ Karras SDE",
-                -1,    # random seed
-            ]},
+    def _call_space():
+        gc = GradioClient("huggingface-projects/QR-code-AI-art-generator")
+        return gc.predict(
+            prompt.strip(),
+            url.strip(),
+            "ugly, disfigured, low quality, blurry, nsfw",
+            7.5,    # guidance_scale
+            1.5,    # controlnet_conditioning_scale
+            0.9,    # strength
+            None,   # init_image
+            None,   # qrcode_image
+            True,   # use_qr_code_as_init_image
+            "DPM++ Karras SDE",
+            -1,     # seed
+            api_name="/inference",
         )
-        if start.status_code != 200:
-            raise HTTPException(status_code=502, detail=f"Failed to start generation: {start.text[:200]}")
 
-        event_id = start.json().get("event_id")
-        if not event_id:
-            raise HTTPException(status_code=502, detail="No event_id returned")
+    try:
+        result_path = await asyncio.get_event_loop().run_in_executor(None, _call_space)
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"ControlNet error: {str(e)[:300]}")
 
-        # Step 2: stream result
-        image_url = None
-        all_lines = []
-        async with client.stream("GET", f"{base_url}/call/inference/{event_id}") as stream:
-            async for line in stream.aiter_lines():
-                all_lines.append(line)
-                if line.startswith("data:"):
-                    data_str = line[5:].strip()
-                    try:
-                        data = _json.loads(data_str)
-                        if isinstance(data, list) and data:
-                            item = data[0]
-                            image_url = item.get("url") or item.get("path") if isinstance(item, dict) else None
-                            if image_url:
-                                break
-                    except Exception:
-                        continue
-
-        if not image_url:
-            raise HTTPException(status_code=502, detail=f"SSE dump: {' | '.join(all_lines[-10:])[:400]}")
-
-        # Step 3: download the result image
-        if not image_url.startswith("http"):
-            image_url = f"{base_url}/file={image_url}"
-        img_resp = await client.get(image_url)
-
-    result = Image.open(io.BytesIO(img_resp.content)).convert("RGB")
+    result = Image.open(result_path).convert("RGB")
 
     buf = io.BytesIO()
     result.save(buf, format="PNG")
