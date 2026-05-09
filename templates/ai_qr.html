@@ -33,9 +33,12 @@
     .pc-box strong { display:block; font-size:.7rem; text-transform:uppercase; letter-spacing:.05em; margin-bottom:3px; }
     .pc-box.pros strong { color:#15803d; }
     .pc-box.cons strong { color:#b91c1c; }
-    .example-img { width:100%; aspect-ratio:1; background:#f1f5f9; border-top:1.5px solid #e2e8f0; border-bottom:1.5px solid #e2e8f0; display:flex; align-items:center; justify-content:center; overflow:hidden; }
-    .example-img img { width:100%; height:100%; object-fit:cover; }
-    .example-img .placeholder { color:#94a3b8; font-size:.78rem; text-align:center; padding:16px; }
+    .example-banner { width:100%; aspect-ratio:1; background:#0f172a; display:flex; align-items:center; justify-content:center; overflow:hidden; max-height:240px; }
+    .example-banner img { width:100%; height:100%; object-fit:cover; }
+    .example-banner .placeholder { color:#94a3b8; font-size:.78rem; text-align:center; padding:16px; }
+    .result-slot { width:100%; aspect-ratio:1; max-height:340px; background:#f8fafc; border-top:1.5px solid #e2e8f0; border-bottom:1.5px solid #e2e8f0; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
+    .result-slot img { width:100%; height:100%; object-fit:contain; background:#fff; }
+    .result-slot .empty-msg { color:#94a3b8; font-size:.82rem; text-align:center; padding:16px; }
     .method-form { padding:18px 24px 22px; }
     .form-field { margin-bottom:14px; }
     .form-field label { display:block; font-size:.78rem; font-weight:600; color:#334155; margin-bottom:4px; }
@@ -83,6 +86,9 @@
 
     <!-- ── METHOD 1: ControlNet ── -->
     <div class="method-card">
+      <div class="example-banner">
+        <img src="/static/example-controlnet.png" alt="ControlNet example" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\'placeholder\'>Example coming soon</div>'">
+      </div>
       <div class="method-header">
         <h2>🎨 ControlNet AI <span class="method-tag tag-slow">Slow · Limited</span></h2>
         <p style="font-size:.82rem;color:#64748b;margin:0;line-height:1.5;">The AI generates the image <em>around</em> the QR pattern — fully integrated artistic result.</p>
@@ -91,8 +97,8 @@
         <div class="pc-box pros"><strong>✓ Pros</strong>Truly artistic, image and QR are one</div>
         <div class="pc-box cons"><strong>✗ Cons</strong>Slow (30–90s), free GPU may queue</div>
       </div>
-      <div class="example-img">
-        <img src="/static/example-controlnet.png" alt="ControlNet example" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\'placeholder\'>Example will appear here after first generation</div>'">
+      <div class="result-slot" id="result-controlnet">
+        <div class="empty-msg">Your generated QR code will appear here</div>
       </div>
       <form class="method-form" id="form-controlnet">
         <div class="form-field">
@@ -114,18 +120,18 @@
           <p>Generating — this can take up to 90 seconds…</p>
         </div>
         <div class="err-box" id="err-controlnet"></div>
-      </form>
-      <div class="result-area" id="result-controlnet">
-        <img id="img-controlnet" src="" alt="Generated ControlNet QR">
-        <div class="result-actions">
+        <div class="result-actions" id="actions-controlnet" style="display:none;">
           <a id="dl-controlnet" href="#" download="forge-ai-qr.png" class="download-btn">⬇ Download</a>
-          <button class="again-btn" onclick="resetMethod('controlnet')">Generate another</button>
+          <button class="again-btn" type="button" onclick="resetMethod('controlnet')">Generate another</button>
         </div>
-      </div>
+      </form>
     </div>
 
     <!-- ── METHOD 2: Overlay ── -->
     <div class="method-card">
+      <div class="example-banner">
+        <img src="/static/example-overlay.png" alt="Overlay example" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\'placeholder\'>Example coming soon</div>'">
+      </div>
       <div class="method-header">
         <h2>🖼️ AI Background + QR <span class="method-tag tag-fast">Fast · Reliable</span></h2>
         <p style="font-size:.82rem;color:#64748b;margin:0;line-height:1.5;">A clean QR code overlaid on an AI-generated image. Customise position and colour.</p>
@@ -134,8 +140,8 @@
         <div class="pc-box pros"><strong>✓ Pros</strong>Fast (10–15s), always works, customisable</div>
         <div class="pc-box cons"><strong>✗ Cons</strong>QR is a separate overlay, less integrated</div>
       </div>
-      <div class="example-img">
-        <img src="/static/example-overlay.png" alt="Overlay example" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\'placeholder\'>Example will appear here after first generation</div>'">
+      <div class="result-slot" id="result-overlay">
+        <div class="empty-msg">Your generated QR code will appear here</div>
       </div>
       <form class="method-form" id="form-overlay">
         <div class="form-field">
@@ -173,14 +179,11 @@
           <p>Generating image — about 10–15 seconds…</p>
         </div>
         <div class="err-box" id="err-overlay"></div>
-      </form>
-      <div class="result-area" id="result-overlay">
-        <img id="img-overlay" src="" alt="Generated Overlay QR">
-        <div class="result-actions">
+        <div class="result-actions" id="actions-overlay" style="display:none;">
           <a id="dl-overlay" href="#" download="forge-ai-qr.png" class="download-btn">⬇ Download</a>
-          <button class="again-btn" onclick="resetMethod('overlay')">Generate another</button>
+          <button class="again-btn" type="button" onclick="resetMethod('overlay')">Generate another</button>
         </div>
-      </div>
+      </form>
     </div>
 
   </div>
@@ -211,23 +214,25 @@ document.querySelectorAll('.hint-chip').forEach(chip => {
 });
 
 function resetMethod(method) {
-  document.getElementById(`result-${method}`).classList.remove('show');
-  document.getElementById(`form-${method}`).style.display = 'block';
+  const slot = document.getElementById(`result-${method}`);
+  slot.innerHTML = '<div class="empty-msg">Your generated QR code will appear here</div>';
+  document.getElementById(`actions-${method}`).style.display = 'none';
 }
 
 async function handleSubmit(method, endpoint, getFormData) {
   const form = document.getElementById(`form-${method}`);
   const loading = document.getElementById(`loading-${method}`);
   const err = document.getElementById(`err-${method}`);
-  const result = document.getElementById(`result-${method}`);
-  const img = document.getElementById(`img-${method}`);
+  const slot = document.getElementById(`result-${method}`);
   const dl = document.getElementById(`dl-${method}`);
+  const actions = document.getElementById(`actions-${method}`);
   const btn = form.querySelector('.gen-btn');
 
   btn.disabled = true;
   loading.classList.add('show');
   err.classList.remove('show');
-  result.classList.remove('show');
+  actions.style.display = 'none';
+  slot.innerHTML = '<div class="empty-msg">Generating…</div>';
 
   try {
     const res = await fetch(endpoint, { method: 'POST', body: getFormData() });
@@ -237,13 +242,13 @@ async function handleSubmit(method, endpoint, getFormData) {
     }
     const blob = await res.blob();
     const blobUrl = URL.createObjectURL(blob);
-    img.src = blobUrl;
+    slot.innerHTML = `<img src="${blobUrl}" alt="Generated QR">`;
     dl.href = blobUrl;
-    form.style.display = 'none';
-    result.classList.add('show');
+    actions.style.display = 'flex';
   } catch (e) {
     err.textContent = '❌ ' + e.message;
     err.classList.add('show');
+    slot.innerHTML = '<div class="empty-msg">Your generated QR code will appear here</div>';
   } finally {
     loading.classList.remove('show');
     btn.disabled = false;
