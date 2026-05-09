@@ -497,7 +497,7 @@ async def generate_ai_qr(request: Request, url: str = Form(...), prompt: str = F
     _ai_qr_cooldown[client_ip] = now
 
     # Generate AI background at 1024x1024
-    encoded_prompt = quote(f"square format, dark rich colors, deep contrast, highly detailed, dramatic lighting, artistic, no text: {prompt.strip()}")
+    encoded_prompt = quote(f"square format, vibrant colors, highly detailed, artistic, no text: {prompt.strip()}")
     async with httpx.AsyncClient(timeout=60.0) as client:
         resp = await client.get(
             f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=1024&nologo=true&model=flux",
@@ -513,20 +513,35 @@ async def generate_ai_qr(request: Request, url: str = Form(...), prompt: str = F
     qr.make(fit=True)
     qr_img = qr.make_image(fill_color="black", back_color="white").convert("L")
 
+    import colorsys
     ai_img = Image.open(io.BytesIO(resp.content)).convert("RGB")
-    ai_img = ImageEnhance.Contrast(ai_img).enhance(1.2)
-    ai_img = ImageEnhance.Color(ai_img).enhance(1.3)
+    ai_img = ImageEnhance.Color(ai_img).enhance(1.4)
     size = qr_img.size[0]
-    ai_img = ai_img.resize((size, size), Image.LANCZOS).convert("RGBA")
+    ai_img = ai_img.resize((size, size), Image.LANCZOS)
 
-    # Nearly-opaque black overlay on dark modules, transparent on light modules
-    # Dark modules: alpha 235 (~92% black) — clearly dark for scanners
-    # Light modules: alpha 0 — full AI image visible
-    dark_alpha = qr_img.point(lambda x: 0 if x > 128 else 235)
-    black_layer = Image.new("RGBA", (size, size), (0, 0, 0, 255))
-    black_layer.putalpha(dark_alpha)
+    # Extract dominant hue from AI image via quantization
+    small = ai_img.resize((50, 50), Image.LANCZOS)
+    palette = small.quantize(colors=6).getpalette()[:18]
+    colors = [(palette[i*3], palette[i*3+1], palette[i*3+2]) for i in range(6)]
+    dominant = max(colors, key=lambda c: colorsys.rgb_to_hsv(c[0]/255, c[1]/255, c[2]/255)[1])
+    h, s, _ = colorsys.rgb_to_hsv(dominant[0]/255, dominant[1]/255, dominant[2]/255)
 
-    result = Image.alpha_composite(ai_img, black_layer).convert("RGB")
+    # Dark module color: same hue, rich saturation, low brightness (~22%) — always dark enough to scan
+    if s < 0.1:
+        dark_color = (20, 20, 20)  # grayscale fallback
+    else:
+        dr, dg, db = colorsys.hsv_to_rgb(h, min(s + 0.3, 1.0), 0.22)
+        dark_color = (int(dr*255), int(dg*255), int(db*255))
+
+    # Brighten AI image for light areas — strong contrast against dark modules
+    ai_bright = ImageEnhance.Brightness(ai_img).enhance(1.5).convert("RGBA")
+
+    # Colored overlay applied only to dark modules
+    dark_alpha = qr_img.point(lambda x: 0 if x > 128 else 242)
+    colored_layer = Image.new("RGBA", (size, size), dark_color + (255,))
+    colored_layer.putalpha(dark_alpha)
+
+    result = Image.alpha_composite(ai_bright, colored_layer).convert("RGB")
 
     buf = io.BytesIO()
     result.save(buf, format="PNG")
