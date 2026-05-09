@@ -76,8 +76,17 @@
     .type-tab { flex:1; padding:9px 12px; border:none; background:transparent; border-radius:8px; font-size:.85rem; font-weight:600; color:#64748b; cursor:pointer; font-family:inherit; transition:all .15s; }
     .type-tab.active { background:linear-gradient(90deg,#0d9488,#0891b2); color:#fff; box-shadow:0 1px 4px rgba(13,148,136,.3); }
     .type-tab:not(.active):hover { background:#f1f5f9; color:#334155; }
-    .app-fields { display:none; }
-    .app-fields.active { display:block; }
+    .destination-card { background:#fff; border-radius:14px; border:1.5px solid #e2e8f0; padding:22px 24px; margin-bottom:24px; box-shadow:0 1px 6px rgba(0,0,0,.05); }
+    .destination-card h3 { font-size:.95rem; font-weight:700; color:#1e293b; margin:0 0 14px; }
+    .content-type-pills { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px; }
+    .ct-pill { padding:6px 12px; background:#f1f5f9; border:1.5px solid transparent; border-radius:99px; font-size:.78rem; font-weight:600; color:#64748b; cursor:pointer; transition:all .15s; font-family:inherit; }
+    .ct-pill.active { background:#0d9488; color:#fff; }
+    .ct-pill:not(.active):hover { background:#e2e8f0; color:#334155; }
+    .content-section { display:none; }
+    .content-section.active { display:block; }
+    .content-section .form-field { margin-bottom:10px; }
+    .content-section .row-2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .destination-card .helper { font-size:.74rem; color:#94a3b8; margin-top:-4px; margin-bottom:8px; }
     .manage-info { background:#f0fdf4; border:1.5px solid #86efac; border-radius:8px; padding:10px 12px; margin-top:10px; font-size:.78rem; color:#166534; }
     .manage-info a { color:#0d9488; text-decoration:underline; word-break:break-all; }
     .manage-info strong { display:block; margin-bottom:4px; color:#15803d; }
@@ -111,6 +120,81 @@
     <button class="type-tab" data-type="app">📱 App Store</button>
   </div>
 
+  <div class="destination-card">
+    <h3 id="dest-title">What should the QR code link to?</h3>
+
+    <!-- Content type pills (only for Static) -->
+    <div class="content-type-pills" id="ct-pills">
+      <button type="button" class="ct-pill active" data-ct="url">🔗 URL</button>
+      <button type="button" class="ct-pill" data-ct="text">📝 Text</button>
+      <button type="button" class="ct-pill" data-ct="wifi">📶 WiFi</button>
+      <button type="button" class="ct-pill" data-ct="email">✉️ Email</button>
+      <button type="button" class="ct-pill" data-ct="phone">📞 Phone</button>
+      <button type="button" class="ct-pill" data-ct="vcard">👤 vCard</button>
+      <button type="button" class="ct-pill" data-ct="social">📸 Social</button>
+    </div>
+
+    <!-- URL (default) -->
+    <div class="content-section active" data-section="url">
+      <div class="form-field"><label for="ai-url">URL</label><input type="url" id="ai-url" placeholder="https://yourwebsite.com"></div>
+    </div>
+
+    <!-- Text -->
+    <div class="content-section" data-section="text">
+      <div class="form-field"><label for="ai-text">Text content</label><textarea id="ai-text" placeholder="Any plain text — up to a few hundred characters"></textarea></div>
+    </div>
+
+    <!-- WiFi -->
+    <div class="content-section" data-section="wifi">
+      <div class="row-2">
+        <div class="form-field"><label for="ai-wifi-ssid">Network name (SSID)</label><input type="text" id="ai-wifi-ssid" placeholder="MyHomeWiFi"></div>
+        <div class="form-field"><label for="ai-wifi-security">Security</label><select id="ai-wifi-security"><option value="WPA">WPA / WPA2</option><option value="WEP">WEP</option><option value="nopass">No password</option></select></div>
+      </div>
+      <div class="form-field"><label for="ai-wifi-password">Password</label><input type="text" id="ai-wifi-password" placeholder="WiFi password"></div>
+      <label style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:#475569;cursor:pointer;"><input type="checkbox" id="ai-wifi-hidden"> Hidden network</label>
+    </div>
+
+    <!-- Email -->
+    <div class="content-section" data-section="email">
+      <div class="form-field"><label for="ai-email-address">Email address</label><input type="email" id="ai-email-address" placeholder="hello@example.com"></div>
+      <div class="form-field"><label for="ai-email-subject">Subject (optional)</label><input type="text" id="ai-email-subject"></div>
+      <div class="form-field"><label for="ai-email-body">Body (optional)</label><textarea id="ai-email-body"></textarea></div>
+    </div>
+
+    <!-- Phone -->
+    <div class="content-section" data-section="phone">
+      <div class="form-field"><label for="ai-phone-number">Phone number</label><input type="tel" id="ai-phone-number" placeholder="+1 555 123 4567"></div>
+    </div>
+
+    <!-- vCard -->
+    <div class="content-section" data-section="vcard">
+      <div class="row-2">
+        <div class="form-field"><label for="ai-vcard-name">Full name</label><input type="text" id="ai-vcard-name"></div>
+        <div class="form-field"><label for="ai-vcard-phone">Phone</label><input type="tel" id="ai-vcard-phone"></div>
+      </div>
+      <div class="form-field"><label for="ai-vcard-email">Email</label><input type="email" id="ai-vcard-email"></div>
+      <div class="row-2">
+        <div class="form-field"><label for="ai-vcard-org">Organization</label><input type="text" id="ai-vcard-org"></div>
+        <div class="form-field"><label for="ai-vcard-url">Website</label><input type="url" id="ai-vcard-url"></div>
+      </div>
+    </div>
+
+    <!-- Social -->
+    <div class="content-section" data-section="social">
+      <div class="row-2">
+        <div class="form-field"><label for="ai-social-platform">Platform</label><select id="ai-social-platform"><option value="https://instagram.com/">Instagram</option><option value="https://twitter.com/">Twitter / X</option><option value="https://tiktok.com/@">TikTok</option><option value="https://youtube.com/@">YouTube</option><option value="https://facebook.com/">Facebook</option><option value="https://linkedin.com/in/">LinkedIn</option><option value="whatsapp">WhatsApp</option></select></div>
+        <div class="form-field"><label for="ai-social-handle">Handle / number</label><input type="text" id="ai-social-handle" placeholder="username"></div>
+      </div>
+    </div>
+
+    <!-- App Store fields -->
+    <div class="content-section" data-section="app">
+      <div class="form-field"><label for="ai-ios">iOS App Store URL</label><input type="url" id="ai-ios" placeholder="https://apps.apple.com/..."></div>
+      <div class="form-field"><label for="ai-android">Google Play URL</label><input type="url" id="ai-android" placeholder="https://play.google.com/..."></div>
+      <div class="form-field"><label for="ai-fallback">Fallback URL (desktop)</label><input type="url" id="ai-fallback" placeholder="https://yourwebsite.com"></div>
+    </div>
+  </div>
+
   <div class="methods-grid">
 
     <!-- ── METHOD 1: ControlNet ── -->
@@ -130,17 +214,6 @@
         <div class="empty-msg">Your generated QR code will appear here</div>
       </div>
       <form class="method-form" id="form-controlnet">
-        <div class="url-fields-cn">
-          <div class="form-field">
-            <label for="cn-url">Destination URL</label>
-            <input type="url" id="cn-url" placeholder="https://yourwebsite.com">
-          </div>
-        </div>
-        <div class="app-fields" id="app-fields-cn">
-          <div class="form-field"><label for="cn-ios">iOS App Store URL</label><input type="url" id="cn-ios" placeholder="https://apps.apple.com/..."></div>
-          <div class="form-field"><label for="cn-android">Google Play URL</label><input type="url" id="cn-android" placeholder="https://play.google.com/..."></div>
-          <div class="form-field"><label for="cn-fallback">Fallback URL (desktop)</label><input type="url" id="cn-fallback" placeholder="https://yourwebsite.com"></div>
-        </div>
         <div class="form-field">
           <label for="cn-prompt">Art prompt</label>
           <textarea id="cn-prompt" placeholder="e.g. a misty Japanese forest at dawn" required></textarea>
@@ -180,17 +253,6 @@
         <div class="empty-msg">Your generated QR code will appear here</div>
       </div>
       <form class="method-form" id="form-overlay">
-        <div class="url-fields-ov">
-          <div class="form-field">
-            <label for="ov-url">Destination URL</label>
-            <input type="url" id="ov-url" placeholder="https://yourwebsite.com">
-          </div>
-        </div>
-        <div class="app-fields" id="app-fields-ov">
-          <div class="form-field"><label for="ov-ios">iOS App Store URL</label><input type="url" id="ov-ios" placeholder="https://apps.apple.com/..."></div>
-          <div class="form-field"><label for="ov-android">Google Play URL</label><input type="url" id="ov-android" placeholder="https://play.google.com/..."></div>
-          <div class="form-field"><label for="ov-fallback">Fallback URL (desktop)</label><input type="url" id="ov-fallback" placeholder="https://yourwebsite.com"></div>
-        </div>
         <div class="form-field">
           <label for="ov-prompt">Art prompt</label>
           <textarea id="ov-prompt" placeholder="e.g. a peaceful mountain sunset" required></textarea>
@@ -297,16 +359,84 @@ document.querySelectorAll('.hint-chip').forEach(chip => {
 });
 
 let currentType = 'static';
+let currentCt = 'url';
+
+function showSection(name) {
+  document.querySelectorAll('.content-section').forEach(s => s.classList.toggle('active', s.dataset.section === name));
+}
+
 document.querySelectorAll('.type-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
     currentType = tab.dataset.type;
-    const isApp = currentType === 'app';
-    document.querySelectorAll('.url-fields-cn, .url-fields-ov').forEach(el => el.style.display = isApp ? 'none' : 'block');
-    document.querySelectorAll('.app-fields').forEach(el => el.classList.toggle('active', isApp));
+    const pills = document.getElementById('ct-pills');
+    const title = document.getElementById('dest-title');
+    if (currentType === 'static') {
+      pills.style.display = 'flex';
+      title.textContent = 'What should the QR code link to?';
+      showSection(currentCt);
+    } else if (currentType === 'dynamic') {
+      pills.style.display = 'none';
+      title.textContent = 'Destination URL (editable later)';
+      showSection('url');
+    } else { // app
+      pills.style.display = 'none';
+      title.textContent = 'App Store URLs';
+      showSection('app');
+    }
   });
 });
+
+document.querySelectorAll('.ct-pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    document.querySelectorAll('.ct-pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    currentCt = pill.dataset.ct;
+    showSection(currentCt);
+  });
+});
+
+function buildContentString() {
+  if (currentType === 'dynamic') {
+    return document.getElementById('ai-url').value.trim();
+  }
+  if (currentType === 'app') return null; // handled separately
+  // static
+  switch (currentCt) {
+    case 'url': return document.getElementById('ai-url').value.trim();
+    case 'text': return document.getElementById('ai-text').value.trim();
+    case 'wifi': {
+      const ssid = document.getElementById('ai-wifi-ssid').value.trim();
+      const pass = document.getElementById('ai-wifi-password').value;
+      const sec = document.getElementById('ai-wifi-security').value;
+      const hidden = document.getElementById('ai-wifi-hidden').checked ? 'true' : 'false';
+      return `WIFI:T:${sec};S:${ssid};P:${pass};H:${hidden};;`;
+    }
+    case 'email': {
+      const addr = document.getElementById('ai-email-address').value.trim();
+      const subj = encodeURIComponent(document.getElementById('ai-email-subject').value.trim());
+      const body = encodeURIComponent(document.getElementById('ai-email-body').value.trim());
+      return `mailto:${addr}?subject=${subj}&body=${body}`;
+    }
+    case 'phone': return `tel:${document.getElementById('ai-phone-number').value.trim()}`;
+    case 'vcard': {
+      const n = document.getElementById('ai-vcard-name').value.trim();
+      const t = document.getElementById('ai-vcard-phone').value.trim();
+      const e = document.getElementById('ai-vcard-email').value.trim();
+      const o = document.getElementById('ai-vcard-org').value.trim();
+      const u = document.getElementById('ai-vcard-url').value.trim();
+      return `BEGIN:VCARD\nVERSION:3.0\nFN:${n}\nTEL:${t}\nEMAIL:${e}\nORG:${o}\nURL:${u}\nEND:VCARD`;
+    }
+    case 'social': {
+      const base = document.getElementById('ai-social-platform').value;
+      const handle = document.getElementById('ai-social-handle').value.trim();
+      if (base === 'whatsapp') return `https://wa.me/${handle.replace(/\D/g, '')}`;
+      return base + handle.replace(/^@/, '');
+    }
+  }
+  return '';
+}
 
 function resetMethod(method) {
   const slot = document.getElementById(`result-${method}`);
@@ -369,11 +499,11 @@ document.getElementById('form-controlnet').addEventListener('submit', e => {
     fd.append('prompt', document.getElementById('cn-prompt').value.trim());
     fd.append('qr_type', currentType);
     if (currentType === 'app') {
-      fd.append('ios_url', document.getElementById('cn-ios').value.trim());
-      fd.append('android_url', document.getElementById('cn-android').value.trim());
-      fd.append('fallback_url', document.getElementById('cn-fallback').value.trim());
+      fd.append('ios_url', document.getElementById('ai-ios').value.trim());
+      fd.append('android_url', document.getElementById('ai-android').value.trim());
+      fd.append('fallback_url', document.getElementById('ai-fallback').value.trim());
     } else {
-      fd.append('url', document.getElementById('cn-url').value.trim());
+      fd.append('url', buildContentString());
     }
     return fd;
   });
@@ -392,11 +522,11 @@ document.getElementById('form-overlay').addEventListener('submit', e => {
     fd.append('container_shape', document.getElementById('ov-container').value);
     fd.append('qr_type', currentType);
     if (currentType === 'app') {
-      fd.append('ios_url', document.getElementById('ov-ios').value.trim());
-      fd.append('android_url', document.getElementById('ov-android').value.trim());
-      fd.append('fallback_url', document.getElementById('ov-fallback').value.trim());
+      fd.append('ios_url', document.getElementById('ai-ios').value.trim());
+      fd.append('android_url', document.getElementById('ai-android').value.trim());
+      fd.append('fallback_url', document.getElementById('ai-fallback').value.trim());
     } else {
-      fd.append('url', document.getElementById('ov-url').value.trim());
+      fd.append('url', buildContentString());
     }
     return fd;
   });
