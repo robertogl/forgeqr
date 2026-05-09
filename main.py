@@ -491,6 +491,8 @@ async def generate_ai_qr_overlay(
     prompt: str = Form(...),
     position: str = Form("bottom-right"),
     qr_color: str = Form("#000000"),
+    dot_style: str = Form("square"),
+    eye_style: str = Form("square"),
 ):
     from datetime import datetime as _dt
     from urllib.parse import quote
@@ -513,11 +515,18 @@ async def generate_ai_qr_overlay(
     background = Image.open(io.BytesIO(resp.content)).convert("RGBA")
 
     qr_color_rgb = _hex_to_rgb(qr_color)
+    drawer_cls = DRAWERS.get(dot_style, SquareModuleDrawer)
+    eye_cls = EYE_DRAWERS.get(eye_style, SquareModuleDrawer)
     qr = qrcode.QRCode(version=None, error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=8, border=3)
     qr.add_data(url.strip())
     qr.make(fit=True)
-    qr_img = qr.make_image(fill_color=qr_color_rgb, back_color="white").convert("RGBA")
-    qr_img = qr_img.resize((240, 240), Image.LANCZOS)
+    # Generate styled QR in grayscale, then recolor to qr_color_rgb
+    qr_gray = qr.make_image(image_factory=StyledPilImage, module_drawer=drawer_cls(), eye_drawer=eye_cls()).convert("L")
+    fg_layer = Image.new("RGBA", qr_gray.size, qr_color_rgb + (255,))
+    bg_layer = Image.new("RGBA", qr_gray.size, (255, 255, 255, 255))
+    mask = qr_gray.point(lambda p: 255 if p < 128 else 0)
+    bg_layer.paste(fg_layer, mask=mask)
+    qr_img = bg_layer.resize((240, 240), Image.LANCZOS)
 
     pad = 12
     padded = Image.new("RGBA", (qr_img.width + pad * 2, qr_img.height + pad * 2), (255, 255, 255, 255))

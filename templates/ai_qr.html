@@ -82,6 +82,19 @@
 </div>
 
 <div class="ai-body">
+
+  <div style="max-width:760px;margin:0 auto 36px;background:#fff;border-radius:14px;border:1.5px solid #e2e8f0;padding:28px 32px;box-shadow:0 1px 6px rgba(0,0,0,.05);">
+    <h2 style="font-size:1.05rem;font-weight:700;color:#1e293b;margin:0 0 10px;">What is the AI Art QR Generator?</h2>
+    <p style="font-size:.88rem;color:#475569;line-height:1.7;margin:0 0 12px;">
+      Forge QR's AI Art generator turns plain QR codes into eye-catching visuals using artificial intelligence.
+      Whether you want a true ControlNet-fused QR (where the image and code are one) or a fast AI background with a clean QR overlay,
+      both methods produce <strong>fully scannable</strong> codes you can use on flyers, packaging, social posts, and more.
+    </p>
+    <p style="font-size:.88rem;color:#475569;line-height:1.7;margin:0;">
+      Pick the method that fits your needs below — both are <strong>completely free</strong>, no signup required, and you can download the result instantly.
+    </p>
+  </div>
+
   <div class="methods-grid">
 
     <!-- ── METHOD 1: ControlNet ── -->
@@ -171,6 +184,27 @@
           <div class="form-field" style="margin:0;">
             <label for="ov-color">QR color</label>
             <input type="color" id="ov-color" class="color-input" value="#000000">
+          </div>
+        </div>
+        <div class="field-row" style="margin-top:8px;">
+          <div class="form-field" style="margin:0;">
+            <label for="ov-dot">Dot style</label>
+            <select id="ov-dot">
+              <option value="square">Square</option>
+              <option value="rounded">Rounded</option>
+              <option value="circle">Circle</option>
+              <option value="gapped">Gapped</option>
+              <option value="vertical">Vertical bars</option>
+              <option value="horizontal">Horizontal bars</option>
+            </select>
+          </div>
+          <div class="form-field" style="margin:0;">
+            <label for="ov-eye">Eye style</label>
+            <select id="ov-eye">
+              <option value="square">Square</option>
+              <option value="rounded">Rounded</option>
+              <option value="circle">Circle</option>
+            </select>
           </div>
         </div>
         <button type="submit" class="gen-btn overlay" style="margin-top:6px;">⚡ Generate Fast QR</button>
@@ -273,6 +307,8 @@ document.getElementById('form-overlay').addEventListener('submit', e => {
     fd.append('prompt', document.getElementById('ov-prompt').value.trim());
     fd.append('position', document.getElementById('ov-position').value);
     fd.append('qr_color', document.getElementById('ov-color').value);
+    fd.append('dot_style', document.getElementById('ov-dot').value);
+    fd.append('eye_style', document.getElementById('ov-eye').value);
     return fd;
   });
 });
