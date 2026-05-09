@@ -526,7 +526,7 @@ async def generate_ai_qr_overlay(
     bg_layer = Image.new("RGBA", qr_gray.size, (255, 255, 255, 255))
     mask = qr_gray.point(lambda p: 255 if p < 128 else 0)
     bg_layer.paste(fg_layer, mask=mask)
-    qr_img = bg_layer.resize((280, 280), Image.LANCZOS)
+    qr_img = bg_layer.resize((380, 380), Image.LANCZOS)
 
     pad = 12
     padded = Image.new("RGBA", (qr_img.width + pad * 2, qr_img.height + pad * 2), (255, 255, 255, 255))
