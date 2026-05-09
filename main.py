@@ -507,28 +507,26 @@ async def generate_ai_qr(request: Request, url: str = Form(...), prompt: str = F
     if resp.status_code != 200:
         raise HTTPException(status_code=502, detail="Image generation failed — try again")
 
-    background = Image.open(io.BytesIO(resp.content)).convert("RGB")
-    background = ImageEnhance.Contrast(background).enhance(1.3)
-    background = ImageEnhance.Color(background).enhance(1.4)
-    background = background.convert("RGBA")
-
-    # Generate clean QR code at ~22% of canvas size
-    qr = qrcode.QRCode(version=None, error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=8, border=3)
+    # Generate QR code and resize to match canvas
+    qr = qrcode.QRCode(version=None, error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=12, border=4)
     qr.add_data(url.strip())
     qr.make(fit=True)
-    qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGBA")
+    qr_img = qr.make_image(fill_color="black", back_color="white").convert("L")
 
-    # Scale QR to ~220px and add white padding for contrast
-    qr_img = qr_img.resize((220, 220), Image.LANCZOS)
-    pad = 10
-    padded = Image.new("RGBA", (qr_img.width + pad * 2, qr_img.height + pad * 2), (255, 255, 255, 240))
-    padded.paste(qr_img, (pad, pad))
+    ai_img = Image.open(io.BytesIO(resp.content)).convert("RGB")
+    ai_img = ImageEnhance.Contrast(ai_img).enhance(1.2)
+    ai_img = ImageEnhance.Color(ai_img).enhance(1.3)
+    size = qr_img.size[0]
+    ai_img = ai_img.resize((size, size), Image.LANCZOS).convert("RGBA")
 
-    # Paste QR in bottom-right corner with 20px margin
-    margin = 20
-    pos = (background.width - padded.width - margin, background.height - padded.height - margin)
-    background.paste(padded, pos, padded)
-    result = background.convert("RGB")
+    # Nearly-opaque black overlay on dark modules, transparent on light modules
+    # Dark modules: alpha 235 (~92% black) — clearly dark for scanners
+    # Light modules: alpha 0 — full AI image visible
+    dark_alpha = qr_img.point(lambda x: 0 if x > 128 else 235)
+    black_layer = Image.new("RGBA", (size, size), (0, 0, 0, 255))
+    black_layer.putalpha(dark_alpha)
+
+    result = Image.alpha_composite(ai_img, black_layer).convert("RGB")
 
     buf = io.BytesIO()
     result.save(buf, format="PNG")
