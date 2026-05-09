@@ -524,20 +524,24 @@ async def generate_ai_qr(request: Request, url: str = Form(...), prompt: str = F
 
         # Step 2: stream result
         image_url = None
+        all_lines = []
         async with client.stream("GET", f"{base_url}/call/inference/{event_id}") as stream:
             async for line in stream.aiter_lines():
+                all_lines.append(line)
                 if line.startswith("data:"):
                     data_str = line[5:].strip()
                     try:
                         data = _json.loads(data_str)
                         if isinstance(data, list) and data:
-                            image_url = data[0].get("url") or data[0].get("path")
-                            break
+                            item = data[0]
+                            image_url = item.get("url") or item.get("path") if isinstance(item, dict) else None
+                            if image_url:
+                                break
                     except Exception:
                         continue
 
         if not image_url:
-            raise HTTPException(status_code=502, detail="No image returned — the space may be sleeping, try again in 30 seconds")
+            raise HTTPException(status_code=502, detail=f"SSE dump: {' | '.join(all_lines[-10:])[:400]}")
 
         # Step 3: download the result image
         if not image_url.startswith("http"):
